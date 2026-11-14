@@ -1,0 +1,66 @@
+---
+// Illustrative sample values (mm per month), shaped like typical regional patterns.
+// Replace with Zinab Lab results when ready.
+const months = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+const regions = [
+  { id: 'highlands', name: 'Central highlands', note: 'One long rainy season, peaking in July and August.', data: [15,35,65,85,75,120,220,240,140,25,12,8] },
+  { id: 'southwest', name: 'Southwest', note: 'Rain from April to October, with a very wet middle.', data: [5,10,30,70,160,190,220,230,190,130,40,10] },
+  { id: 'south', name: 'South', note: 'Two rainy seasons, spring and autumn, with a dry gap between.', data: [15,25,70,130,90,20,15,20,40,100,80,20] },
+  { id: 'afar', name: 'Afar lowlands', note: 'Dry most of the year, with a short bump in July and August.', data: [5,8,15,20,15,5,40,60,20,5,5,4] },
+];
+const MAX = 250, H = 200, THRESH = 100;
+---
+<div class="rain" data-rain>
+  <div class="tabs" role="group" aria-label="Region">
+    {regions.map((r, i) => (
+      <button type="button" data-region={r.id} aria-pressed={i === 0 ? 'true' : 'false'}>{r.name}</button>
+    ))}
+  </div>
+
+  {regions.map((r, i) => (
+    <figure data-panel={r.id} hidden={i !== 0}>
+      <svg viewBox="0 0 720 250" role="img" aria-label={`Sample monthly rainfall, ${r.name}`}>
+        {r.data.map((v, m) => {
+          const h = (v / MAX) * H;
+          const x = 24 + m * 57;
+          return (
+            <g>
+              <rect x={x} y={215 - h} width="42" height={h} fill={v >= THRESH ? 'var(--rain)' : 'var(--dry)'} />
+              <text x={x + 21} y={208 - h} text-anchor="middle" font-size="13" fill="var(--ink)" font-family="var(--display)">{v}</text>
+              <text x={x + 21} y="237" text-anchor="middle" font-size="14" fill="var(--muted)" font-family="var(--display)">{months[m]}</text>
+            </g>
+          );
+        })}
+      </svg>
+      <figcaption>{r.note}</figcaption>
+    </figure>
+  ))}
+
+  <p class="legend"><span class="key wet"></span>100 mm or more <span class="key dry"></span>under 100 mm. Illustrative sample values in millimeters per month, not measured results.</p>
+</div>
+
+<style>
+  .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .tabs button { font: 600 1rem var(--display); color: var(--ink); background: transparent; border: 2px solid var(--ink); padding: 0.4rem 1rem; cursor: pointer; }
+  .tabs button[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+  figure { margin: 0; }
+  svg { width: 100%; height: auto; display: block; }
+  figcaption { font-family: var(--display); font-weight: 600; margin-top: 0.75rem; }
+  .legend { font-size: 0.9rem; color: var(--muted); margin: 1rem 0 0; }
+  .key { display: inline-block; width: 0.8rem; height: 0.8rem; margin: 0 0.4rem 0 0.8rem; vertical-align: -1px; }
+  .key:first-child { margin-left: 0; }
+  .wet { background: var(--rain); }
+  .dry { background: var(--dry); }
+</style>
+
+<script>
+  const root = document.querySelector('[data-rain]');
+  const buttons = root?.querySelectorAll<HTMLButtonElement>('[data-region]') ?? [];
+  const panels = root?.querySelectorAll<HTMLElement>('[data-panel]') ?? [];
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      panels.forEach((p) => (p.hidden = p.dataset.panel !== btn.dataset.region));
+    })
+  );
+</script>

@@ -1,23 +1,36 @@
+---
+import '../styles/global.css';
+const { title = 'Zinab Lab: rain patterns in Ethiopia', description = 'Zinab Lab uses Microsoft Planetary data to identify rain patterns across Ethiopia.' } = Astro.props;
+---
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Noto+Sans+Ethiopic:wght@600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="site-header">
+        <a class="logo" href="/">Zinab Lab</a>
+        <nav aria-label="Main">
+          <a href="#rainfall">Rainfall</a>
+          <a href="#seasons">Seasons</a>
+          <a href="#method">Method</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
+    </div>
+    <slot />
+    <footer class="site-footer">
+      <div class="wrap">Zinab Lab, {new Date().getFullYear()}. Zinab (ዝናብ) means rain in Amharic.</div>
+    </footer>
+  </body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

@@ -1,0 +1,45 @@
+---
+// Universal-indicator colors for pH 1 to 14.
+const colors = ['#d7263d','#e4572e','#ef7b2f','#f5a623','#f2cf3a','#c8d83c','#7cc36b','#3fae93','#2e93b5','#3a72c4','#4a55c0','#6a47b8','#8a3fae','#a63a96'];
+---
+<div class="ph" data-ph-strip>
+  <p class="ph-label">Pick a pH. The whole page takes on its color.</p>
+  <div class="ph-row" role="group" aria-label="pH color picker">
+    {colors.map((c, i) => (
+      <button type="button" class="ph-swatch" style={`--c:${c}`} data-color={c} data-ph={i + 1}
+        aria-pressed={i === 7 ? 'true' : 'false'} aria-label={`pH ${i + 1}`}>
+        <span class="ph-num">{i + 1}</span>
+      </button>
+    ))}
+  </div>
+  <p class="ph-read" aria-live="polite">pH 8, slightly basic</p>
+</div>
+
+<style>
+  .ph-label { font-family: var(--display); font-weight: 600; margin-bottom: 0.75rem; }
+  .ph-row { display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; max-width: 44rem; }
+  .ph-swatch { all: unset; cursor: pointer; display: grid; gap: 0.35rem; text-align: center; font-family: var(--display); font-size: 0.8rem; }
+  .ph-swatch::before { content: ''; display: block; height: 3.5rem; background: var(--c); transition: transform 0.2s; }
+  .ph-swatch:hover::before { transform: translateY(-4px); }
+  .ph-swatch[aria-pressed='true']::before { transform: translateY(-10px); box-shadow: 0 10px 0 -4px var(--ink); }
+  .ph-swatch:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .ph-read { margin: 1.25rem 0 0; font-family: var(--display); }
+  @media (max-width: 36rem) { .ph-num { display: none; } .ph-swatch::before { height: 2.5rem; } }
+</style>
+
+<script>
+  const strip = document.querySelector('[data-ph-strip]');
+  const read = strip?.querySelector('.ph-read');
+  const swatches = strip?.querySelectorAll<HTMLButtonElement>('.ph-swatch') ?? [];
+  const describe = (n: number) =>
+    n < 7 ? 'acidic' : n === 7 ? 'neutral' : n <= 9 ? 'slightly basic' : 'basic';
+
+  swatches.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const n = Number(btn.dataset.ph);
+      document.documentElement.style.setProperty('--accent', btn.dataset.color!);
+      swatches.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      if (read) read.textContent = `pH ${n}, ${describe(n)}`;
+    });
+  });
+</script>

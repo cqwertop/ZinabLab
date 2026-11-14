@@ -1,11 +1,72 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import RainChart from '../components/RainChart.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const seasons = [
+  { name: 'Bega', months: 'October to January', text: 'The dry season. Most of the country is dry, and the south gets its last autumn showers early on.' },
+  { name: 'Belg', months: 'February to May', text: 'The short rains. They matter most in the south and southeast, and they set the start of planting in many highland areas.' },
+  { name: 'Kiremt', months: 'June to September', text: 'The main rains. They deliver most of the year\u2019s rainfall to the highlands, west, and northwest.' },
+];
 ---
-
 <Layout>
-	<Welcome />
+  <main>
+    <section class="hero" id="rainfall">
+      <div class="wrap">
+        <h1>Where and when the rain falls in Ethiopia.</h1>
+        <p class="lede">Zinab Lab uses Microsoft Planetary data to find rain patterns across Ethiopia, region by region and season by season.</p>
+        <RainChart />
+      </div>
+    </section>
+
+    <section id="seasons">
+      <div class="wrap">
+        <h2>Ethiopia has three rain seasons</h2>
+        <div class="seasons">
+          {seasons.map((s) => (
+            <div>
+              <h3>{s.name}</h3>
+              <p class="months">{s.months}</p>
+              <p>{s.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="method">
+      <div class="wrap two">
+        <h2>How we find patterns</h2>
+        <div>
+          <p>We pull climate and satellite data from the Microsoft Planetary Computer and clip it to Ethiopian regions. TensorFlow.js models then compare months and years to find when rain starts, peaks, and stops.</p>
+          <p>Each result will be published with the data source and the code that produced it, so anyone can check it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="wrap">
+        <h2>Work with Zinab Lab</h2>
+        <p>Need rain patterns for a region, a season, or a planting decision? Tell us what you are studying and we will reply within a week.</p>
+        <p><a href="mailto:hello@zinablab.com">hello@zinablab.com</a></p>
+      </div>
+    </section>
+  </main>
 </Layout>
+
+<style>
+  .hero { background: color-mix(in srgb, var(--rain) 9%, var(--paper)); padding-block: clamp(2.5rem, 7vw, 5rem); }
+  h1 { font-size: clamp(2.5rem, 8vw, 5.5rem); font-weight: 700; letter-spacing: -0.03em; max-width: 14ch; margin-bottom: 1.5rem; }
+  .lede { font-size: 1.25rem; margin-bottom: 2.5rem; }
+
+  .seasons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .seasons h3 { font-size: 1.75rem; }
+  .months { font-family: var(--display); font-weight: 600; color: var(--muted); margin-bottom: 0.5rem; }
+
+  .method { background: var(--ink); color: var(--paper); }
+  .method a { color: var(--paper); }
+  .two { display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; }
+
+  @media (max-width: 44rem) {
+    .seasons, .two { grid-template-columns: 1fr; gap: 1rem; }
+  }
+</style>
