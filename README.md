@@ -1,46 +1,22 @@
-# Astro Starter Kit: Basics
+# Zinab Lab · Ethiopia Climate Explorer
+
+A NASA Space Apps Challenge project exploring how Earth observation and climate data can support local climate resilience in Ethiopia.
+
+## Run locally
 
 ```sh
-npm create astro@latest -- --template basics
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Dashboard
 
-## 🚀 Project Structure
+The Astro homepage includes a responsive climate dashboard with four selectable Ethiopian observation points, year selection, a monthly precipitation chart, summary metrics, and an interactive schematic location map. It requests monthly precipitation (`PRECTOTCORR`) from the [NASA POWER API](https://power.larc.nasa.gov/docs/services/api/temporal/monthly/). The API request uses the selected point and year. If the request fails or the data is unavailable, the dashboard clearly labels its illustrative fallback values; these sample values are not measured observations or forecasts.
 
-Inside of your Astro project, you'll see the following folders and files:
+Precipitation is displayed as a monthly mean daily rate in mm/day, matching the NASA POWER parameter units. Seasonal notes are general regional context, not forecasts or planting advice.
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+## Stack
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Astro
+- NASA POWER monthly point API
+- Vanilla JavaScript for dashboard controls and data visualization

@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-const { title = 'Zinab Lab: rain patterns in Ethiopia', description = 'Zinab Lab uses Microsoft Planetary data to identify rain patterns across Ethiopia.' } = Astro.props;
+const { title = 'Zinab Lab | Ethiopia Climate Explorer', description = 'Explore NASA POWER precipitation data and seasonal climate patterns across Ethiopia with Zinab Lab.' } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -8,29 +8,13 @@ const { title = 'Zinab Lab: rain patterns in Ethiopia', description = 'Zinab Lab
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0b1417" />
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Noto+Sans+Ethiopic:wght@600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <div class="wrap">
-      <header class="site-header">
-        <a class="logo" href="/">Zinab Lab</a>
-        <nav aria-label="Main">
-          <a href="#rainfall">Rainfall</a>
-          <a href="#seasons">Seasons</a>
-          <a href="#method">Method</a>
-          <a href="#contact">Contact</a>
-        </nav>
-      </header>
-    </div>
     <slot />
-    <footer class="site-footer">
-      <div class="wrap">Zinab Lab, {new Date().getFullYear()}. Zinab (ዝናብ) means rain in Amharic.</div>
-    </footer>
   </body>
 </html>
