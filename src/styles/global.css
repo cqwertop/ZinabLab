@@ -1,45 +1,20 @@
 :root {
-  --paper: #f0f4f3;
-  --ink: #0e2a2f;
-  --muted: #4a6266;
-  --rain: #1e6fd9;
-  --dry: #d9a441;
-  --display: 'Familjen Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  color-scheme: dark;
+  --paper: #0b1417;
+  --ink: #e8f0ed;
+  --muted: #91a49a;
+  --rain: #79deb0;
+  --dry: #d7bc78;
+  --display: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
   --body: 'Literata', Georgia, serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 1.125rem;
-  line-height: 1.7;
-}
-
-h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0; }
-p { margin: 0 0 1em; max-width: 62ch; }
-a { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 0.2em; text-decoration-color: var(--rain); }
-a:hover { text-decoration-color: var(--ink); }
-:focus-visible { outline: 3px solid var(--rain); outline-offset: 3px; }
-
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--display); font-size: 1rem; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; margin: 0; }
+p { margin: 0 0 1em; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid #8be4b6; outline-offset: 3px; }
 .wrap { width: min(72rem, 100% - 2.5rem); margin-inline: auto; }
-
-.site-header { display: flex; justify-content: space-between; align-items: center; padding-block: 1.25rem; font-family: var(--display); }
-.site-header nav { display: flex; gap: 1.5rem; }
-.site-header a { text-decoration: none; }
-.site-header a:hover { text-decoration: underline; text-decoration-color: var(--rain); }
-.logo { font-weight: 700; font-size: 1.3rem; }
-
-section { padding-block: clamp(3rem, 8vw, 6rem); }
-h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin-bottom: 1.5rem; }
-
-.site-footer { padding-block: 2.5rem; color: var(--muted); font-size: 0.95rem; }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  * { transition: none !important; }
-}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
