@@ -1,0 +1,89 @@
+---
+export const prerender = true;
+
+import DashboardShell from '../../components/DashboardShell.astro';
+import { historyYears, locations } from '../../data/locations';
+
+export function getStaticPaths() {
+  return locations.map((location) => ({ params: { id: location.id }, props: { location } }));
+}
+
+const { location } = Astro.props;
+const bbox = [
+  location.lon - 1.6,
+  location.lat - 1.3,
+  location.lon + 1.6,
+  location.lat + 1.3,
+].join(',');
+const mapParams = new URLSearchParams({
+  bbox,
+  layer: 'mapnik',
+  marker: `${location.lat},${location.lon}`,
+});
+---
+
+<DashboardShell activePage="locations" breadcrumb={location.label} title={`${location.label} | Zinab Lab`} description={`Explore NASA POWER precipitation history for ${location.label}, ${location.name}, Ethiopia.`}>
+  <p class="back-link"><a href="/locations/">← All observation points</a></p>
+  <section class="page-intro">
+    <p class="eyebrow"><span class="eyebrow-line"></span> {location.name.toUpperCase()} · OBSERVATION POINT</p>
+    <h1>{location.label}</h1>
+    <p class="intro-copy">{location.description} NASA POWER monthly mean precipitation at this point.</p>
+  </section>
+
+  <section class="profile-grid">
+    <article class="panel profile-map-panel">
+      <div class="panel-heading"><div><p class="panel-kicker">LOCATION</p><h2>Observation map</h2></div><span class="map-target">ETHIOPIA</span></div>
+      <div class="map-visual profile-map">
+        <iframe
+          src={`https://www.openstreetmap.org/export/embed.html?${mapParams}`}
+          title={`OpenStreetMap centered on ${location.label}, Ethiopia`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+      <div class="coordinates"><span>LATITUDE <b>{location.lat.toFixed(2)}° N</b></span><span>LONGITUDE <b>{location.lon.toFixed(2)}° E</b></span></div>
+      <p class="map-footnote">Map tiles © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>.</p>
+    </article>
+
+    <article class="panel history-panel" data-location-id={location.id}>
+      <div class="panel-heading"><div><p class="panel-kicker">NASA POWER · PRECTOTCORR</p><h2>Annual daily means</h2></div><span class="unit-tag">mm / day</span></div>
+      <p class="panel-description">Annual average of monthly mean daily precipitation for the five most recent complete years.</p>
+      <p id="history-status" class="history-status" role="status" aria-live="polite">Loading observed history…</p>
+      <div id="history-chart" class="history-chart" role="img" aria-label={`Annual precipitation history for ${location.label}`}></div>
+      <p class="chart-note"><span class="legend-dot"></span>NASA POWER observed values · {historyYears[0]}–{historyYears[historyYears.length - 1]}</p>
+    </article>
+  </section>
+
+  <script>
+    import { fetchMonthlyHistory } from '../../lib/climate-analytics';
+    import { historyYears, locations } from '../../data/locations';
+
+    const locationElement = document.querySelector<HTMLElement>('[data-location-id]');
+    const location = locations.find((point) => point.id === locationElement?.dataset.locationId);
+    const status = document.querySelector('#history-status');
+    const chart = document.querySelector('#history-chart');
+
+    try {
+      if (!location) throw new Error('This observation point could not be found.');
+      const history = await fetchMonthlyHistory(location, historyYears[0], historyYears[historyYears.length - 1]);
+      const years = Object.keys(history).map(Number).sort((a, b) => a - b);
+      const means = years.map((year) => history[year].reduce((sum, value) => sum + value, 0) / 12);
+      const max = Math.max(1, ...means);
+      chart.innerHTML = years.map((year, index) =>
+        `<span class="history-bar" style="--bar-height:${Math.max(3, (means[index] / max) * 100)}%" title="${year}: ${means[index].toFixed(2)} mm/day"><i>${year}</i><b>${means[index].toFixed(1)}</b></span>`,
+      ).join('');
+      status.textContent = `Loaded ${years.length} complete years of NASA POWER observations.`;
+      chart.setAttribute('aria-label', `Annual daily mean precipitation for ${location.label}, ${years[0]} to ${years[years.length - 1]}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unexpected error.';
+      status.textContent = `Could not load NASA POWER history: ${message}`;
+      status.classList.add('error');
+    }
+  </script>
+</DashboardShell>
+
+<style>
+  .back-link{margin:0 0 10px;font-size:10px}.back-link a{color:#a0cfb0;text-decoration:none}.back-link a:hover{text-decoration:underline}.page-intro{padding:4px 0 22px}.page-intro h1{font-size:clamp(36px,4vw,50px);letter-spacing:-.05em;font-weight:500;margin:0 0 12px}.eyebrow,.panel-kicker{color:#89b59c;font-size:9px;font-weight:700;letter-spacing:.16em;margin:0 0 12px}.eyebrow-line{display:inline-block;width:22px;border-top:1px solid #8ce2b2;vertical-align:middle;margin-right:8px}.intro-copy{max-width:620px;font-family:var(--body);font-size:13px;line-height:1.75;color:#9daea7;margin:0}.profile-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.panel{padding:18px;border:1px solid #25332e;border-radius:10px;background:#111b19}.panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.panel-kicker{font-size:8px;margin-bottom:7px}.panel h2{font-size:16px;letter-spacing:-.025em;font-weight:500;margin:0;color:#e3eee8}.map-target,.unit-tag{font-size:9px;color:#a8c9b4;border:1px solid #32483a;padding:5px 8px;border-radius:5px}.profile-map{height:290px;margin-top:14px}.map-visual{position:relative;overflow:hidden;border:1px solid #24352f;border-radius:8px;background:#e8e9df}.map-visual iframe{display:block;width:100%;height:100%;border:0}.coordinates{display:flex;gap:22px;margin-top:12px;color:#71877a;font-size:8px;letter-spacing:.1em}.coordinates b{display:block;margin-top:3px;color:#b8c9bf;font-size:11px;letter-spacing:0;font-weight:500}.map-footnote{font-size:9px;color:#788d82;margin:10px 0 0}.map-footnote a{color:#a0cfb0;text-decoration:none}.panel-description{font-size:10px;color:#869a90;margin:10px 0 16px}.history-status{min-height:18px;color:#89ac99;font-size:10px}.history-status.error{color:#e8bd7c}.history-chart{height:220px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:end;gap:12px;padding:20px 4px 24px;border-bottom:1px solid #283831}.history-bar{height:var(--bar-height);min-height:3px;position:relative;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#7ce5bb,#419b78)}.history-bar i{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);font-style:normal;color:#82968b;font-size:9px}.history-bar b{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-weight:500;color:#c6d6cc;font-size:8px;white-space:nowrap}.chart-note{display:flex;align-items:center;gap:7px;color:#82968b;font-size:9px;margin:14px 0 0}.legend-dot{width:7px;height:7px;border-radius:50%;background:#72d9a8}
+  @media(max-width:900px){.profile-grid{grid-template-columns:1fr}.profile-map{height:280px}}
+  @media(max-width:700px){.panel{padding:15px}}
+</style>

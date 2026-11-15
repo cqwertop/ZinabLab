@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { locations } from '../data/locations';
+import '../styles/dashboard.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  activePage: 'overview' | 'locations' | 'analytics';
+  breadcrumb: string;
+}
+
+const { title, description, activePage, breadcrumb } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <main class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Zinab Lab home"><span class="brand-mark">Z</span><span>ZINAB<span class="brand-light">LAB</span></span></a>
+      <p class="side-label">WORKSPACE</p>
+      <a class:list={['side-link', { active: activePage === 'overview' }]} href="/" aria-current={activePage === 'overview' ? 'page' : undefined}><span class="side-icon">◉</span>Climate overview</a>
+      <a class:list={['side-link', { active: activePage === 'locations' }]} href="/locations/" aria-current={activePage === 'locations' ? 'page' : undefined}><span class="side-icon">⌖</span>Observation points <span class="nav-count">{locations.length}</span></a>
+      <a class:list={['side-link', { active: activePage === 'analytics' }]} href="/analytics/" aria-current={activePage === 'analytics' ? 'page' : undefined}><span class="side-icon">↗</span>Predictive analytics</a>
+      <div class="sidebar-bottom"><span class="live-dot"></span><span>NASA POWER data</span><a href="https://power.larc.nasa.gov/" target="_blank" rel="noreferrer" aria-label="NASA POWER opens in a new tab">↗</a></div>
+    </aside>
+    <div class="main-column">
+      <header class="topbar">
+        <div class="breadcrumbs">Workspace <span>/</span> <strong>{breadcrumb}</strong></div>
+        <a class="challenge-pill" href="https://www.spaceappschallenge.org/" target="_blank" rel="noreferrer"><span>✦</span> NASA SPACE APPS CHALLENGE <span class="external">↗</span></a>
+      </header>
+      <div class="content"><slot /></div>
+    </div>
+  </main>
+</Layout>

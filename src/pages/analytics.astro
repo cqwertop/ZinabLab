@@ -1,0 +1,184 @@
+---
+export const prerender = true;
+
+import DashboardShell from '../components/DashboardShell.astro';
+import { historyYears, locations } from '../data/locations';
+---
+
+<DashboardShell activePage="analytics" breadcrumb="Predictive analytics" title="Predictive analytics | Zinab Lab" description="Explore experimental, gradient-trained rainfall projections and their limited spatial interpolation across four Ethiopian observation points.">
+  <section class="page-intro">
+    <p class="eyebrow"><span class="eyebrow-line"></span> DATA SCIENCE · EXPERIMENTAL</p>
+    <h1>Predictive analytics</h1>
+    <p class="intro-copy">A TensorFlow.js model learns seasonal and time-varying patterns from observed NASA POWER precipitation at four Ethiopian stations. Explore the next-year monthly projections and a limited interpolated map surface.</p>
+  </section>
+
+  <section class="method-panel panel" aria-labelledby="method-heading">
+    <div class="method-mark" aria-hidden="true">∇</div>
+    <div>
+      <p class="panel-kicker">MODEL NOTES</p>
+      <h2 id="method-heading">Gradient-trained seasonal-spatial regression</h2>
+      <p>The backend trains a multivariate linear regression with TensorFlow.js and Adam gradient descent, using month, year, coordinates, and their seasonal interactions. Monthly values across the map are inverse-distance interpolations of the station projections—not independently observed or modeled at every grid cell. This small, sparse-station research prototype has no uncertainty bounds and is not a weather or seasonal forecast.</p>
+      <p id="model-quality" class="model-quality">Loading model diagnostics…</p>
+      <p class="source-note">History window: {historyYears[0]}–{historyYears[historyYears.length - 1]} · Units: mm/day · Source: <a href="https://power.larc.nasa.gov/" target="_blank" rel="noreferrer">NASA POWER</a></p>
+    </div>
+  </section>
+
+  <p id="analytics-status" class="analytics-status" role="status" aria-live="polite">Loading observed histories and training the model…</p>
+
+  <section class="panel map-panel" aria-labelledby="map-heading">
+    <div class="map-heading">
+      <div><p class="panel-kicker">SPATIAL INTERPOLATION · NOT A STATION OBSERVATION</p><h2 id="map-heading">Projected rainfall surface</h2></div>
+      <label class="month-control"><span>PROJECTION MONTH</span><select id="month-select" aria-label="Select projected month">
+        <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+        <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+        <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+        <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+      </select></label>
+    </div>
+    <p class="map-note">Colored cells show an inverse-distance estimate between four configured stations for the selected month. Coverage is restricted to their convex hull; it does not represent validated Ethiopia-wide rainfall.</p>
+    <div id="rainfall-map" role="region" aria-label="Interactive map of interpolated monthly rainfall projections within the four-station coverage area"></div>
+    <div class="map-legend" aria-label="Estimated precipitation legend">
+      <span>LOW <b id="legend-min">0.0</b> mm/day</span><span class="legend-gradient" aria-hidden="true"></span><span>HIGH <b id="legend-max">—</b> mm/day</span>
+    </div>
+    <p class="map-attribution">Map tiles © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>. Station markers show model projections; the colored surface is interpolated.</p>
+  </section>
+
+  <section class="analytics-section" aria-labelledby="points-heading">
+    <div class="section-heading"><div><p class="panel-kicker">ALL OBSERVATION POINTS</p><h2 id="points-heading">Station projections</h2></div><span class="target-year-label" id="target-year-label">TARGET YEAR —</span></div>
+    <div class="analytics-grid" aria-label="Model projection by observation point">
+      {locations.map((location) => (
+        <article class="panel analytics-card" data-location-id={location.id}>
+          <div class="panel-heading">
+            <div><p class="panel-kicker">{location.name}</p><h3>{location.label}</h3></div>
+            <a class="profile-link" href={`/locations/${location.id}/`} aria-label={`View ${location.label} location profile`}>↗</a>
+          </div>
+          <p class="analytics-coordinates">{location.lat.toFixed(2)}° N, {location.lon.toFixed(2)}° E</p>
+          <p class="analytics-card-status" data-status role="status" aria-live="polite">Waiting for model…</p>
+          <div class="analytics-metrics">
+            <div><span>PROJECTED DAILY MEAN</span><strong><span data-projected-mean>—</span> <small>mm/day</small></strong></div>
+            <div><span>VS. OBSERVED BASELINE</span><strong data-change>—</strong></div>
+          </div>
+          <div class="analytics-chart" data-chart role="img" aria-label={`Monthly projection for ${location.label}`}></div>
+          <div class="month-legend" aria-hidden="true"><span>JAN</span><span>MAR</span><span>MAY</span><span>JUL</span><span>SEP</span><span>NOV</span></div>
+        </article>
+      ))}
+    </div>
+  </section>
+</DashboardShell>
+
+<script>
+  import L from 'leaflet';
+  import 'leaflet/dist/leaflet.css';
+  import type { RainfallAnalytics } from '../data/analytics-types';
+  import { fetchRainfallAnalytics } from '../lib/climate-analytics';
+  import { historyYears, locations } from '../data/locations';
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const palette = ['#153c58', '#1d6874', '#348c79', '#69a96c', '#a8bd59', '#e1b84e', '#e58443'];
+  const cards = document.querySelectorAll<HTMLElement>('[data-location-id]');
+  const pageStatus = document.querySelector<HTMLElement>('#analytics-status');
+  const monthSelect = document.querySelector<HTMLSelectElement>('#month-select');
+  const map = L.map('rainfall-map', { scrollWheelZoom: false, zoomControl: true }).setView([9, 38], 6);
+  const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  L.tileLayer(tileUrl, { maxZoom: 12, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(map);
+  const surfaceLayer = L.layerGroup().addTo(map);
+  let analytics: RainfallAnalytics | undefined;
+
+  function colorFor(value, maximum) {
+    const fraction = maximum > 0 ? value / maximum : 0;
+    return palette[Math.min(palette.length - 1, Math.floor(fraction * palette.length))];
+  }
+
+  function renderSurface() {
+    if (!analytics) return;
+    const month = Number(monthSelect.value);
+    const surface = analytics.surface;
+    const values = surface.cells.map((cell) => cell.monthlyValues[month]);
+    const maximum = Math.max(0, ...values);
+    document.querySelector('#legend-max').textContent = maximum.toFixed(1);
+    surfaceLayer.clearLayers();
+
+    for (const cell of surface.cells) {
+      const value = cell.monthlyValues[month];
+      L.rectangle([
+        [cell.latitude - surface.cellLatitudeStep / 2, cell.longitude - surface.cellLongitudeStep / 2],
+        [cell.latitude + surface.cellLatitudeStep / 2, cell.longitude + surface.cellLongitudeStep / 2],
+      ], {
+        color: colorFor(value, maximum),
+        weight: 0.35,
+        opacity: 0.38,
+        fillColor: colorFor(value, maximum),
+        fillOpacity: 0.68,
+      }).bindTooltip(`${months[month]} · ${value.toFixed(2)} mm/day estimated`).addTo(surfaceLayer);
+    }
+
+    L.polygon(surface.coveragePolygon.map((point) => [point.latitude, point.longitude] as L.LatLngTuple), {
+      color: '#b8f1cc',
+      weight: 1.5,
+      opacity: 0.8,
+      fill: false,
+      dashArray: '5 5',
+      interactive: false,
+    }).addTo(surfaceLayer);
+
+    for (const location of analytics.locations) {
+      L.circleMarker([location.latitude, location.longitude], {
+        radius: 6,
+        color: '#f5fff8',
+        weight: 1.5,
+        fillColor: '#153c31',
+        fillOpacity: 1,
+      })
+        .bindTooltip(`${location.label}: ${location.monthlyValues[month].toFixed(2)} mm/day projected`)
+        .addTo(surfaceLayer);
+    }
+  }
+
+  function renderCards() {
+    if (!analytics) return;
+    const maximum = Math.max(1, ...analytics.locations.flatMap((location) => location.monthlyValues));
+    for (const card of cards) {
+      const projection = analytics.locations.find((point) => point.id === card.dataset.locationId);
+      if (!projection) continue;
+      const status = card.querySelector<HTMLElement>('[data-status]');
+      card.querySelector('[data-projected-mean]').textContent = projection.projectedMean.toFixed(2);
+      card.querySelector('[data-change]').textContent = `${projection.changePercent >= 0 ? '+' : ''}${projection.changePercent.toFixed(1)}%`;
+      status.textContent = `${analytics.model.historyStart}–${analytics.model.historyEnd} observed · target ${analytics.model.targetYear}`;
+      const chart = card.querySelector<HTMLElement>('[data-chart]');
+      chart.setAttribute('aria-label', `Projected monthly precipitation for ${analytics.model.targetYear} at ${projection.label}`);
+      chart.innerHTML = projection.monthlyValues.map((value, index) =>
+        `<span class="projection-bar" style="--bar-height:${Math.max(3, (value / maximum) * 100)}%" title="${months[index]}: ${value.toFixed(2)} mm/day"></span>`,
+      ).join('');
+    }
+  }
+
+  async function loadAnalytics() {
+    try {
+      analytics = await fetchRainfallAnalytics(historyYears[0], historyYears[historyYears.length - 1]);
+      document.querySelector('#model-quality').textContent =
+        `${analytics.model.epochs.toLocaleString()} gradient-descent epochs · ${analytics.model.sampleCount} monthly training values · in-sample RMSE ${analytics.model.trainingRmse.toFixed(2)} mm/day · next-year target ${analytics.model.targetYear}.`;
+      document.querySelector('#target-year-label').textContent = `TARGET YEAR ${analytics.model.targetYear}`;
+      renderCards();
+      renderSurface();
+      map.fitBounds(analytics.surface.coveragePolygon.map((point) => [point.latitude, point.longitude] as L.LatLngTuple), { padding: [18, 18] });
+      pageStatus.textContent = `${analytics.locations.length} station projections loaded from the backend using ${analytics.source} observations.`;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unexpected model API error.';
+      pageStatus.textContent = `Analytics unavailable · ${message}`;
+      pageStatus.classList.add('error');
+      for (const card of cards) {
+        const status = card.querySelector<HTMLElement>('[data-status]');
+        status.textContent = `Projection unavailable: ${message}`;
+        status.classList.add('error');
+      }
+    }
+  }
+
+  monthSelect.addEventListener('change', renderSurface);
+  void loadAnalytics();
+</script>
+
+<style>
+  .page-intro{padding:14px 0 22px}.page-intro h1{font-size:clamp(34px,4vw,48px);letter-spacing:-.05em;font-weight:500;margin:0 0 12px}.eyebrow{color:#89b59c;font-size:9px;font-weight:700;letter-spacing:.16em;margin:0 0 12px}.eyebrow-line{display:inline-block;width:22px;border-top:1px solid #8ce2b2;vertical-align:middle;margin-right:8px}.intro-copy{max-width:740px;font-family:var(--body);font-size:13px;line-height:1.75;color:#9daea7;margin:0}.panel{border:1px solid #25332e;border-radius:10px;background:#111b19}.method-panel{display:grid;grid-template-columns:42px minmax(0,1fr);gap:14px;padding:17px;margin-bottom:16px}.method-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:9px;background:#1a3229;color:#91efbd;font-size:23px}.panel-kicker{color:#89b59c;font-size:8px;font-weight:700;letter-spacing:.16em;margin:0 0 7px}.method-panel h2,.analytics-section h2{color:#e3eee8;font-size:16px;font-weight:500;letter-spacing:-.025em;margin:0}.method-panel p:not(.panel-kicker):not(.source-note):not(.model-quality){max-width:930px;margin:9px 0 0;color:#9aaba2;font-family:var(--body);font-size:11px;line-height:1.65}.model-quality{margin:9px 0 0;color:#c0d8ca;font-size:10px;line-height:1.6}.source-note{margin:9px 0 0;color:#82968b;font-size:9px}.source-note a,.map-attribution a{color:#a0cfb0;text-decoration:none}.source-note a:hover,.map-attribution a:hover{text-decoration:underline}.analytics-status{min-height:20px;margin:0 0 10px;color:#89ac99;font-size:10px}.analytics-status.error,.analytics-card-status.error{color:#e8bd7c}.map-panel{padding:17px;margin-bottom:24px}.map-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:15px}.month-control{display:grid;gap:5px;color:#89b59c;font-size:8px;font-weight:700;letter-spacing:.1em}.month-control select{min-width:132px;border:1px solid #34493e;border-radius:6px;padding:8px 26px 8px 9px;background:#14201c;color:#e3eee8;font:inherit;font-size:11px;letter-spacing:0}.map-note{max-width:850px;margin:10px 0 12px;color:#9aaba2;font-family:var(--body);font-size:10px;line-height:1.6}#rainfall-map{height:clamp(320px,47vw,520px);overflow:hidden;border:1px solid #34453d;border-radius:7px;background:#182320;z-index:0}.map-legend{display:flex;align-items:center;gap:9px;margin:12px 0 0;color:#95a99f;font-size:8px;letter-spacing:.06em}.map-legend b{color:#e4eee8;font-weight:500}.legend-gradient{width:min(190px,32vw);height:9px;border-radius:9px;background:linear-gradient(90deg,#153c58,#1d6874,#348c79,#69a96c,#a8bd59,#e1b84e,#e58443)}.map-attribution{margin:9px 0 0;color:#81958b;font-size:8px}.analytics-section{margin-top:5px}.section-heading{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:11px}.section-heading .panel-kicker{margin-bottom:5px}.target-year-label{color:#92bca2;font-size:9px;letter-spacing:.1em}.analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.analytics-card{padding:17px}.panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.analytics-card h3{margin:0;color:#e3eee8;font-size:16px;font-weight:500;letter-spacing:-.025em}.profile-link{width:27px;height:27px;display:grid;place-items:center;border:1px solid #32483a;border-radius:7px;color:#a0cfb0;text-decoration:none}.profile-link:hover{background:#192723}.analytics-coordinates{margin:6px 0 10px;color:#71877a;font-size:9px;font-variant-numeric:tabular-nums}.analytics-card-status{min-height:17px;margin:0;color:#82968b;font-size:9px}.analytics-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.analytics-metrics>div{padding:10px;border:1px solid #273832;border-radius:7px;background:#131f1b}.analytics-metrics>div>span{display:block;color:#80958b;font-size:8px;letter-spacing:.09em}.analytics-metrics strong{display:block;margin-top:5px;color:#edf5ef;font-size:19px;font-weight:500}.analytics-metrics small{color:#8ca096;font-size:9px;font-weight:400}.analytics-chart{height:112px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end;gap:clamp(3px,.8vw,8px);padding:10px 4px 0;margin-top:12px;border-bottom:1px solid #283831}.projection-bar{height:var(--bar-height);min-height:3px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#7ce5bb,#419b78)}.month-legend{display:grid;grid-template-columns:repeat(6,1fr);padding:6px 1px 0;text-align:center;color:#74877e;font-size:7px;letter-spacing:.04em}
+  @media(max-width:700px){.analytics-grid{grid-template-columns:1fr}.method-panel{grid-template-columns:1fr}.method-mark{width:32px;height:32px}.map-heading{align-items:flex-start;flex-direction:column}.month-control{width:100%}.month-control select{width:100%}}
+</style>

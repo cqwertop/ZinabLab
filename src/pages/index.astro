@@ -1,32 +1,11 @@
 ---
-import Layout from '../layouts/Layout.astro';
+export const prerender = true;
 
-const regions = [
-  { id: 'addis', name: 'Central Highlands', lat: 9.03, lon: 38.74, label: 'Addis Ababa' },
-  { id: 'mekele', name: 'Northern Highlands', lat: 13.50, lon: 39.47, label: 'Mekelle' },
-  { id: 'hawassa', name: 'Southern Rift Valley', lat: 7.06, lon: 38.48, label: 'Hawassa' },
-  { id: 'gambela', name: 'Western Lowlands', lat: 8.25, lon: 34.59, label: 'Gambela' },
-];
-const years = [2020, 2021, 2022, 2023, 2024];
+import DashboardShell from '../components/DashboardShell.astro';
+import { historyYears, locations } from '../data/locations';
 ---
-<Layout title="Zinab Lab | Ethiopia Climate Explorer" description="Explore NASA POWER precipitation data and seasonal climate patterns across Ethiopia with Zinab Lab.">
-  <main class="app-shell">
-    <aside class="sidebar" aria-label="Main navigation">
-      <a class="brand" href="#overview" aria-label="Zinab Lab home"><span class="brand-mark">Z</span><span>ZINAB<span class="brand-light">LAB</span></span></a>
-      <p class="side-label">WORKSPACE</p>
-      <a class="side-link active" href="#overview"><span class="side-icon">◉</span>Climate overview</a>
-      <a class="side-link" href="#rainfall"><span class="side-icon">⌁</span>Rainfall explorer</a>
-      <a class="side-link" href="#seasons"><span class="side-icon">◷</span>Season outlook</a>
-      <div class="sidebar-bottom"><span class="live-dot"></span><span>NASA POWER data</span><a href="https://power.larc.nasa.gov/" target="_blank" rel="noreferrer" aria-label="NASA POWER opens in a new tab">↗</a></div>
-    </aside>
-
-    <div class="main-column">
-      <header class="topbar">
-        <div class="breadcrumbs">Workspace <span>/</span> <strong>Climate overview</strong></div>
-        <a class="challenge-pill" href="https://www.spaceappschallenge.org/" target="_blank" rel="noreferrer"><span>✦</span> NASA SPACE APPS CHALLENGE <span class="external">↗</span></a>
-      </header>
-
-      <div class="content" id="overview">
+<DashboardShell activePage="overview" breadcrumb="Climate overview" title="Zinab Lab | Ethiopia Climate Explorer" description="Explore NASA POWER precipitation data, interactive location profiles, and transparent rainfall trend analytics across Ethiopia.">
+  <div id="overview">
         <section class="intro">
           <div>
             <p class="eyebrow"><span class="eyebrow-line"></span> ETHIOPIA · EARTH OBSERVATION</p>
@@ -38,17 +17,17 @@ const years = [2020, 2021, 2022, 2023, 2024];
 
         <section class="control-row" aria-label="Dashboard filters">
           <label class="select-control"><span>REGION</span><select id="region-select" aria-label="Select a region">
-            {regions.map((region) => <option value={region.id}>{region.name}</option>)}
+            {locations.map((location) => <option value={location.id}>{location.name}</option>)}
           </select></label>
           <label class="select-control year-control"><span>YEAR</span><select id="year-select" aria-label="Select a year">
-            {years.map((year) => <option value={year} selected={year === 2024}>{year}</option>)}
+            {historyYears.map((year) => <option value={year} selected={year === historyYears[historyYears.length - 1]}>{year}</option>)}
           </select></label>
           <button type="button" class="refresh-button" id="refresh-button"><span class="refresh-icon">↻</span> Refresh data</button>
-          <span class="fetch-status" id="fetch-status" role="status" aria-live="polite">Ready to load data</span>
+          <span class="fetch-status" id="fetch-status" role="status" aria-live="polite">Connecting to live climate data…</span>
         </section>
 
         <section class="metric-grid" aria-label="Selected region climate summary">
-          <article class="metric-card"><div class="metric-top"><span>ANNUAL PRECIPITATION</span><span class="metric-icon blue">⌁</span></div><div class="metric-value"><strong id="annual-total">—</strong><span>mm / day avg.</span></div><p class="metric-foot">Daily average across selected year</p></article>
+          <article class="metric-card"><div class="metric-top"><span>ANNUAL DAILY MEAN</span><span class="metric-icon blue">⌁</span></div><div class="metric-value"><strong id="annual-total">—</strong><span>mm / day</span></div><p class="metric-foot">Average daily precipitation across the year</p></article>
           <article class="metric-card"><div class="metric-top"><span>WETTEST MONTH</span><span class="metric-icon aqua">↗</span></div><div class="metric-value"><strong id="wettest-month">—</strong></div><p class="metric-foot" id="wettest-detail">Monthly precipitation rate</p></article>
           <article class="metric-card"><div class="metric-top"><span>SELECTED LOCATION</span><span class="metric-icon gold">⌖</span></div><div class="metric-value location-value"><strong id="location-name">Addis Ababa</strong></div><p class="metric-foot" id="location-coords">9.03° N, 38.74° E</p></article>
         </section>
@@ -56,27 +35,40 @@ const years = [2020, 2021, 2022, 2023, 2024];
         <section class="data-grid" id="rainfall">
           <article class="panel chart-panel">
             <div class="panel-heading"><div><p class="panel-kicker">PRECIPITATION PROFILE</p><h2>Rainfall through the year</h2></div><span class="unit-tag">mm / day</span></div>
-            <p class="panel-description">NASA POWER monthly mean precipitation · <span id="chart-region">Central Highlands</span> · <span id="chart-year">2024</span></p>
+            <p class="panel-description">NASA POWER monthly mean precipitation · <span id="chart-region">Central Highlands</span> · <span id="chart-year">{historyYears[historyYears.length - 1]}</span></p>
             <div class="chart-wrap"><div class="y-labels" aria-hidden="true"><span id="scale-top">6</span><span id="scale-mid">3</span><span>0</span></div><div class="chart-area"><div class="grid-lines" aria-hidden="true"><i></i><i></i><i></i></div><div class="bar-chart" id="bar-chart" role="img" aria-label="Monthly precipitation chart"><span class="chart-empty">Load data to explore rainfall</span></div><div class="month-labels" aria-hidden="true"><span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span></div></div></div>
-            <p class="chart-note"><span class="legend-dot"></span>Monthly mean precipitation rate <span class="note-separator">·</span> NASA POWER <span id="data-note">Connect to load live data</span></p>
+            <p class="chart-note"><span class="legend-dot"></span>Monthly mean precipitation rate <span class="note-separator">·</span> NASA POWER via Zinab API <span id="data-note">Connecting…</span></p>
           </article>
 
           <article class="panel map-panel">
-            <div class="panel-heading"><div><p class="panel-kicker">REGIONAL EXPLORER</p><h2>Explore the landscape</h2></div><span class="map-target">ETH</span></div>
+            <div class="panel-heading"><div><p class="panel-kicker">REGIONAL EXPLORER</p><h2>Observation point</h2></div><span class="map-target">ETHIOPIA</span></div>
             <div class="map-visual">
-              <div class="map-grid" aria-hidden="true"></div>
-              <svg class="ethiopia-map" viewBox="0 0 360 330" role="img" aria-labelledby="map-title map-desc">
-                <title id="map-title">Schematic map of Ethiopia showing selected climate observation point</title><desc id="map-desc">Stylized regional visualization. Select a region from the menu to change the observation location.</desc>
-                <defs><linearGradient id="land" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#263d3c"/><stop offset="1" stop-color="#172b31"/></linearGradient><radialGradient id="heat"><stop offset="0" stop-color="#65dfc0" stop-opacity=".32"/><stop offset="1" stop-color="#65dfc0" stop-opacity="0"/></radialGradient></defs>
-                <path class="country-shape" d="M91 28 130 40 158 30 180 47 211 42 228 62 258 72 271 99 296 117 285 146 299 166 280 187 268 220 243 225 230 251 202 260 184 282 158 272 143 252 119 246 105 225 82 216 75 194 51 176 58 154 44 131 58 109 52 82 70 62 70 42Z" fill="url(#land)" stroke="#5d827a" stroke-width="2"/>
-                <path class="map-river" d="M70 111c40 15 38 40 74 42s33 33 73 32 41-13 70-6M89 210c25-26 54-19 74-44s46-15 58-43" fill="none" stroke="#3b7774" stroke-width="2" stroke-dasharray="3 6"/>
-                <circle id="map-halo" cx="171" cy="126" r="58" fill="url(#heat)"/><circle id="map-ring" cx="171" cy="126" r="13" fill="none" stroke="#6ce4c5" stroke-opacity=".5"/><circle id="map-point" cx="171" cy="126" r="5" fill="#75f1ce" stroke="#e1fff6" stroke-width="2"/>
-                <text class="map-place" id="map-place" x="183" y="121">ADDIS ABABA</text><text class="map-label" x="93" y="89">AMHARA</text><text class="map-label" x="129" y="200">OROMIA</text><text class="map-label" x="226" y="171">SOMALI</text><text class="map-label" x="118" y="244">SIDAMA</text>
-              </svg>
+              <iframe
+                id="map-frame"
+                title="Interactive OpenStreetMap of Ethiopia showing the selected observation point"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=32.9%2C3.3%2C48.1%2C15.2&amp;layer=mapnik&amp;marker=9.03%2C38.74"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
               <div class="map-caption"><span class="live-dot"></span><span id="map-region-label">Central Highlands</span><span class="caption-coordinate" id="map-coordinate">9.03°N · 38.74°E</span></div>
             </div>
-            <p class="map-footnote">Schematic regional view · select a location above to explore a NASA POWER data point.</p>
+            <p class="map-footnote">Select a region to move the observation marker. Map tiles © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>.</p>
           </article>
+        </section>
+
+        <section class="panel forecast-panel" aria-labelledby="forecast-heading">
+          <div class="panel-heading">
+            <div><p class="panel-kicker">EXPERIMENTAL ML MODEL</p><h2 id="forecast-heading">Machine-learning rainfall outlook</h2></div>
+            <a class="text-link" href="/analytics/">View map + all projections <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="panel-description">A TensorFlow.js model trained with gradient descent on five complete years of NASA POWER data for <span id="forecast-location">Central Highlands</span>. Experimental climate analysis, not a weather forecast.</p>
+          <p id="forecast-status" class="forecast-status" role="status" aria-live="polite">Loading observed history for the selected point…</p>
+          <div class="forecast-summary">
+            <article class="metric-card"><div class="metric-top"><span>PROJECTED DAILY MEAN · <span id="forecast-year">—</span></span></div><div class="metric-value"><strong id="projected-mean">—</strong><span>mm / day</span></div></article>
+            <article class="metric-card"><div class="metric-top"><span>VS. RECENT BASELINE</span></div><div class="metric-value"><strong id="forecast-change">—</strong><span id="forecast-direction">awaiting data</span></div></article>
+          </div>
+          <div id="forecast-chart" class="forecast-chart" role="img" aria-label="Monthly trend projection chart"></div>
+          <p class="chart-note"><span class="legend-dot"></span>Experimental monthly model projection · Not a weather forecast · <span id="forecast-years">Awaiting complete observations</span></p>
         </section>
 
         <section class="panel seasons-panel" id="seasons">
@@ -86,83 +78,170 @@ const years = [2020, 2021, 2022, 2023, 2024];
 
         <footer class="app-footer"><span><b>ZINAB LAB</b> · NASA Space Apps Challenge</span><span>Data: <a href="https://power.larc.nasa.gov/" target="_blank" rel="noreferrer">NASA POWER</a> · Estimates are not forecasts</span></footer>
       </div>
-    </div>
-  </main>
 
   <script>
+    import { fetchMonthlyHistory, fetchRainfallAnalytics, type MonthlyHistory } from '../lib/climate-analytics';
+    import type { RainfallAnalytics } from '../data/analytics-types';
+    import { historyYears, locations } from '../data/locations';
+
     const regionSelect = document.querySelector('#region-select');
     const yearSelect = document.querySelector('#year-select');
     const refreshButton = document.querySelector('#refresh-button');
     const status = document.querySelector('#fetch-status');
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const coordinates = {
-      addis: { label: 'Addis Ababa', region: 'Central Highlands', lat: 9.03, lon: 38.74, x: 171, y: 126 },
-      mekele: { label: 'Mekelle', region: 'Northern Highlands', lat: 13.5, lon: 39.47, x: 168, y: 72 },
-      hawassa: { label: 'Hawassa', region: 'Southern Rift Valley', lat: 7.06, lon: 38.48, x: 155, y: 190 },
-      gambela: { label: 'Gambela', region: 'Western Lowlands', lat: 8.25, lon: 34.59, x: 82, y: 148 },
-    };
-    const fallbackByYear = {
-      2020: [1.4, 1.8, 2.4, 3.2, 2.8, 3.9, 5.2, 5.8, 4.1, 2.3, 1.4, 1.2],
-      2021: [1.2, 1.6, 2.1, 3.4, 3.1, 4.2, 5.4, 5.6, 3.8, 2.1, 1.5, 1.1],
-      2022: [1.5, 1.9, 2.7, 3.1, 2.6, 4.4, 5.6, 5.9, 4.3, 2.5, 1.6, 1.3],
-      2023: [1.3, 1.7, 2.5, 3.5, 2.9, 4.1, 5.1, 5.7, 4.0, 2.2, 1.4, 1.2],
-      2024: [1.4, 1.8, 2.6, 3.3, 2.7, 4.0, 5.5, 5.8, 4.2, 2.4, 1.5, 1.2],
-    };
+    const historyCache = new Map<string, MonthlyHistory>();
+    let activeRequest = 0;
+    let mappedRegion = 'addis';
+    let cachedAnalytics: RainfallAnalytics | undefined;
+    let analyticsRequest: Promise<RainfallAnalytics> | undefined;
     const $ = (selector) => document.querySelector(selector);
 
-    function updateSummary(values, region, year, isSample) {
+    function loadRainfallAnalytics() {
+      if (cachedAnalytics) return Promise.resolve(cachedAnalytics);
+      if (!analyticsRequest) {
+        analyticsRequest = fetchRainfallAnalytics(historyYears[0], historyYears[historyYears.length - 1])
+          .then((result) => {
+            cachedAnalytics = result;
+            return result;
+          })
+          .finally(() => {
+            analyticsRequest = undefined;
+          });
+      }
+      return analyticsRequest;
+    }
+
+    function updateSummary(values, region, year) {
       const total = values.reduce((sum, value) => sum + value, 0);
       const wettestIndex = values.indexOf(Math.max(...values));
       $('#annual-total').textContent = (total / 12).toFixed(2);
       $('#wettest-month').textContent = monthNames[wettestIndex];
       $('#wettest-detail').textContent = `${values[wettestIndex].toFixed(2)} mm/day · ${year}`;
-      $('#chart-region').textContent = region.region;
+      $('#chart-region').textContent = region.name;
       $('#chart-year').textContent = year;
-      $('#data-note').textContent = isSample ? ' · illustrative fallback, not observed data' : '';
-      $('#bar-chart').setAttribute('aria-label', `${isSample ? 'Illustrative fallback' : 'NASA POWER'} monthly precipitation rate for ${region.region} in ${year}`);
+      $('#data-note').textContent = 'Connected · live backend data';
+      $('#bar-chart').setAttribute('aria-label', `NASA POWER monthly precipitation rate for ${region.name} in ${year}`);
       const max = Math.max(1, ...values);
       $('#scale-top').textContent = max.toFixed(1);
       $('#scale-mid').textContent = (max / 2).toFixed(1);
       $('#bar-chart').innerHTML = values.map((value, index) => `<span class="bar${index === wettestIndex ? ' peak' : ''}" style="--bar-height:${Math.max(4, (value / max) * 100)}%" title="${monthNames[index]}: ${value.toFixed(2)} mm/day"><i>${value.toFixed(1)}</i></span>`).join('');
     }
 
+    function clearSummary(message) {
+      $('#annual-total').textContent = '—';
+      $('#wettest-month').textContent = '—';
+      $('#wettest-detail').textContent = message;
+      $('#chart-year').textContent = yearSelect.value;
+      $('#scale-top').textContent = '—';
+      $('#scale-mid').textContent = '—';
+      $('#data-note').textContent = 'Live data unavailable';
+      const empty = document.createElement('span');
+      empty.className = 'chart-empty';
+      empty.textContent = message;
+      $('#bar-chart').replaceChildren(empty);
+      $('#bar-chart').setAttribute('aria-label', message);
+    }
+
+    function updateForecast(projection, model, region) {
+      $('#forecast-location').textContent = region.name;
+      $('#forecast-year').textContent = model.targetYear;
+      $('#projected-mean').textContent = projection.projectedMean.toFixed(2);
+      $('#forecast-change').textContent = `${projection.changePercent >= 0 ? '+' : ''}${projection.changePercent.toFixed(1)}%`;
+      $('#forecast-direction').textContent = 'vs. recent mean';
+      $('#forecast-years').textContent = `${model.historyStart}–${model.historyEnd} observed`;
+      $('#forecast-status').textContent = `TensorFlow.js gradient model · ${model.sampleCount} observations · training RMSE ${model.trainingRmse.toFixed(2)} mm/day.`;
+      const max = Math.max(1, ...projection.monthlyValues);
+      $('#forecast-chart').setAttribute('aria-label', `Machine-learning projection for monthly precipitation in ${model.targetYear} at ${region.label}`);
+      $('#forecast-chart').innerHTML = projection.monthlyValues.map((value, index) =>
+        `<span class="forecast-bar" style="--bar-height:${Math.max(3, (value / max) * 100)}%" title="${monthNames[index]} projected: ${value.toFixed(2)} mm/day"><i>${monthNames[index]}</i></span>`,
+      ).join('');
+    }
+
+    function clearForecast(message) {
+      $('#forecast-status').textContent = message;
+      $('#forecast-year').textContent = '—';
+      $('#projected-mean').textContent = '—';
+      $('#forecast-change').textContent = '—';
+      $('#forecast-direction').textContent = 'unavailable';
+      $('#forecast-years').textContent = 'No complete observed history';
+      $('#forecast-chart').innerHTML = '';
+    }
+
     async function loadData() {
-      const region = coordinates[regionSelect.value];
+      const requestId = ++activeRequest;
+      const region = locations.find((location) => location.id === regionSelect.value);
+      if (!region) throw new Error('Select a valid observation point.');
       const year = Number(yearSelect.value);
       refreshButton.disabled = true;
       refreshButton.classList.add('loading');
-      status.textContent = 'Requesting NASA POWER data…';
+      status.textContent = 'Requesting live data from the dashboard API…';
       status.classList.remove('error');
       $('#location-name').textContent = region.label;
       $('#location-coords').textContent = `${region.lat.toFixed(2)}° N, ${region.lon.toFixed(2)}° E`;
-      $('#map-region-label').textContent = region.region;
+      $('#map-region-label').textContent = region.name;
       $('#map-coordinate').textContent = `${region.lat.toFixed(2)}°N · ${region.lon.toFixed(2)}°E`;
-      $('#map-place').textContent = region.label.toUpperCase();
-      $('#map-point').setAttribute('cx', String(region.x));
-      $('#map-point').setAttribute('cy', String(region.y));
-      $('#map-ring').setAttribute('cx', String(region.x));
-      $('#map-ring').setAttribute('cy', String(region.y));
-      $('#map-halo').setAttribute('cx', String(region.x));
-      $('#map-halo').setAttribute('cy', String(region.y));
-      $('#map-place').setAttribute('x', String(region.x + 12));
-      $('#map-place').setAttribute('y', String(region.y - 5));
+      clearSummary('Waiting for live data…');
+      clearForecast('Waiting for complete live history…');
+      if (mappedRegion !== region.id) {
+        const mapParams = new URLSearchParams({
+          bbox: '32.9,3.3,48.1,15.2',
+          layer: 'mapnik',
+          marker: `${region.lat},${region.lon}`,
+        });
+        $('#map-frame').src = `https://www.openstreetmap.org/export/embed.html?${mapParams}`;
+        mappedRegion = region.id;
+      }
       try {
-        const params = new URLSearchParams({ parameters: 'PRECTOTCORR', community: 'AG', longitude: String(region.lon), latitude: String(region.lat), start: String(year), end: String(year), format: 'JSON' });
-        const response = await fetch(`https://power.larc.nasa.gov/api/temporal/monthly/point?${params}`);
-        if (!response.ok) throw new Error(`NASA POWER responded ${response.status}`);
-        const payload = await response.json();
-        const data = payload?.properties?.parameter?.PRECTOTCORR;
-        const values = data ? monthNames.map((_, index) => Number(data[`${year}${String(index + 1).padStart(2, '0')}`])).filter(Number.isFinite) : [];
-        if (values.length !== 12) throw new Error('Monthly values are unavailable for this period.');
-        updateSummary(values, region, year, false);
-        status.textContent = 'NASA POWER · live response';
+        const cachedHistory = historyCache.get(region.id);
+        const historyRequest = cachedHistory
+          ? Promise.resolve(cachedHistory)
+          : fetchMonthlyHistory(region, historyYears[0], historyYears[historyYears.length - 1])
+            .then((history) => {
+              historyCache.set(region.id, history);
+              return history;
+            });
+        const [historyResult, analyticsResult] = await Promise.allSettled([
+          historyRequest,
+          loadRainfallAnalytics(),
+        ]);
+        if (requestId !== activeRequest) return;
+
+        if (historyResult.status === 'fulfilled') {
+          const values = historyResult.value[year];
+          if (values) {
+            updateSummary(values, region, year);
+            status.textContent = 'Connected · NASA POWER data served by Zinab API';
+          } else {
+            clearSummary(`The backend has no complete observations for ${year}.`);
+            status.textContent = `No complete backend observations for ${year}.`;
+            status.classList.add('error');
+          }
+        } else {
+          const message = historyResult.reason instanceof Error ? historyResult.reason.message : 'Unexpected API error.';
+          clearSummary('No live observations available');
+          status.textContent = `Backend data unavailable · ${message}`;
+          status.classList.add('error');
+        }
+
+        if (analyticsResult.status === 'fulfilled') {
+          const projection = analyticsResult.value.locations.find((point) => point.id === region.id);
+          if (projection) updateForecast(projection, analyticsResult.value.model, region);
+          else clearForecast('The model API did not return this observation point.');
+        } else {
+          const message = analyticsResult.reason instanceof Error ? analyticsResult.reason.message : 'Unexpected model API error.';
+          clearForecast(`Machine-learning projection unavailable: ${message}`);
+        }
       } catch (error) {
-        updateSummary(fallbackByYear[year], region, year, true);
-        status.textContent = 'NASA POWER unavailable · showing illustrative fallback';
+        const message = error instanceof Error ? error.message : 'Unexpected dashboard error.';
+        clearSummary(message);
+        status.textContent = message;
         status.classList.add('error');
+        clearForecast(message);
       } finally {
-        refreshButton.disabled = false;
-        refreshButton.classList.remove('loading');
+        if (requestId === activeRequest) {
+          refreshButton.disabled = false;
+          refreshButton.classList.remove('loading');
+        }
       }
     }
 
@@ -171,7 +250,7 @@ const years = [2020, 2021, 2022, 2023, 2024];
     refreshButton.addEventListener('click', loadData);
     loadData();
   </script>
-</Layout>
+</DashboardShell>
 
 <style>
   .app-shell{min-height:100vh;display:grid;grid-template-columns:244px minmax(0,1fr);background:#0b1417;color:#e8f0ed;font-family:var(--display)}
@@ -189,9 +268,10 @@ const years = [2020, 2021, 2022, 2023, 2024];
   .control-row{display:flex;align-items:center;gap:10px;padding:14px 16px;margin-bottom:14px;border:1px solid #25332e;border-radius:10px;background:#111d1b}.select-control{display:flex;align-items:center;gap:10px;padding:0 11px;border:1px solid #2c3b35;border-radius:7px;background:#0e1816;height:37px}.select-control>span{font-size:9px;letter-spacing:.1em;color:#81968c;font-weight:700}.select-control select{appearance:none;min-width:145px;border:0;background:transparent;color:#dce9e2;font:500 11px var(--display);outline:none;cursor:pointer}.select-control select option{background:#13201c}.year-control select{min-width:56px}.refresh-button{display:flex;align-items:center;gap:8px;height:37px;padding:0 13px;border:1px solid #355343;border-radius:7px;background:#183126;color:#b5edca;font:500 11px var(--display);cursor:pointer;transition:background .2s}.refresh-button:hover{background:#224432}.refresh-button:disabled{opacity:.7;cursor:wait}.refresh-icon{font-size:17px}.loading .refresh-icon{animation:spin 1s linear infinite}.fetch-status{margin-left:auto;color:#89ac99;font-size:10px}.fetch-status.error{color:#e8bd7c}@keyframes spin{to{transform:rotate(360deg)}}
   .metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:14px}.metric-card,.panel{border:1px solid #25332e;border-radius:10px;background:#111b19}.metric-card{padding:15px 17px 13px;min-height:112px}.metric-top{display:flex;align-items:center;justify-content:space-between;color:#80958b;font-size:9px;letter-spacing:.1em;font-weight:700}.metric-icon{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:17px}.metric-icon.blue{color:#94c8ed;background:#1a2e36}.metric-icon.aqua{color:#8ce5c0;background:#1a3229}.metric-icon.gold{color:#e4c381;background:#322c20}.metric-value{display:flex;align-items:baseline;gap:8px;margin-top:8px}.metric-value strong{font-size:25px;line-height:1.1;font-weight:500;letter-spacing:-.035em;color:#edf5ef}.metric-value>span{font-size:10px;color:#8ca096}.metric-value.location-value strong{font-size:20px}.metric-foot{font-size:10px;color:#82948a;margin:5px 0 0}
   .data-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(290px,.85fr);gap:14px;margin-bottom:14px}.panel{padding:18px}.panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.panel-kicker{font-size:8px;margin-bottom:7px}.panel h2{font-size:16px;letter-spacing:-.025em;font-weight:500;margin:0;color:#e3eee8}.unit-tag,.map-target{font-size:9px;color:#a8c9b4;border:1px solid #32483a;padding:5px 8px;border-radius:5px}.panel-description{font-size:10px;color:#869a90;margin:10px 0 16px}.chart-wrap{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px}.y-labels{height:168px;display:flex;flex-direction:column;justify-content:space-between;color:#687e73;font-size:9px;text-align:right;padding-bottom:24px}.chart-area{position:relative;min-width:0}.grid-lines{height:144px;position:absolute;inset:0 0 24px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}.grid-lines i{border-top:1px dashed #283831}.bar-chart{position:relative;z-index:1;height:144px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end;gap:clamp(3px,1vw,10px);padding:0 5px}.chart-empty{grid-column:1/-1;align-self:center;text-align:center;color:#7c9086;font-size:11px}.bar{height:var(--bar-height);min-height:4px;position:relative;background:linear-gradient(180deg,#7ce5bb 0%,#419b78 100%);border-radius:4px 4px 1px 1px;transition:height .3s ease,filter .2s;cursor:default}.bar:hover{filter:brightness(1.25)}.bar.peak{background:linear-gradient(180deg,#d9e792,#89c884)}.bar i{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-style:normal;font-size:8px;color:#c6d6cc;opacity:0}.bar:hover i,.bar.peak i{opacity:1}.month-labels{height:24px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end;text-align:center;color:#74877e;font-size:8px;letter-spacing:.03em}.chart-note{display:flex;align-items:center;gap:7px;color:#82968b;font-size:9px;margin:14px 0 0}.legend-dot{width:7px;height:7px;border-radius:50%;background:#72d9a8}.note-separator{color:#516258}
-  .map-panel{min-width:0}.map-visual{height:247px;position:relative;overflow:hidden;border:1px solid #24352f;border-radius:8px;margin-top:14px;background:radial-gradient(ellipse at 50% 50%,#182b27 0%,#111d1c 70%)}.map-grid{position:absolute;inset:0;background-image:linear-gradient(#3f594d18 1px,transparent 1px),linear-gradient(90deg,#3f594d18 1px,transparent 1px);background-size:27px 27px}.ethiopia-map{position:absolute;inset:0;width:100%;height:100%;padding:8px}.map-label{font:7px var(--display);letter-spacing:1px;fill:#6c8c7c;opacity:.72}.map-place{font:700 8px var(--display);letter-spacing:.7px;fill:#c0f6dd}.map-caption{position:absolute;bottom:10px;left:12px;right:12px;display:flex;gap:7px;align-items:center;padding:8px 9px;border:1px solid #34463c;border-radius:6px;background:#0d1715e8;color:#c6d7ce;font-size:9px}.caption-coordinate{margin-left:auto;color:#8aa394;font-variant-numeric:tabular-nums}.map-footnote{font-size:9px;line-height:1.5;color:#788d82;margin:9px 0 0;font-family:var(--body)}
+  .map-panel{min-width:0}  .map-visual{height:247px;position:relative;overflow:hidden;border:1px solid #24352f;border-radius:8px;margin-top:14px;background:#e8e9df}.map-visual iframe{display:block;width:100%;height:100%;border:0}.map-caption{position:absolute;bottom:10px;left:12px;right:12px;display:flex;gap:7px;align-items:center;padding:8px 9px;border:1px solid #34463c;border-radius:6px;background:#0d1715e8;color:#c6d7ce;font-size:9px;pointer-events:none}.caption-coordinate{margin-left:auto;color:#8aa394;font-variant-numeric:tabular-nums}.map-footnote{font-size:9px;line-height:1.5;color:#788d82;margin:9px 0 0;font-family:var(--body)}.map-footnote a{color:#a0cfb0;text-decoration:none}.map-footnote a:hover{text-decoration:underline}
+  .forecast-panel{margin-bottom:14px}.forecast-panel .panel-description{max-width:800px}.text-link{color:#a0cfb0;text-decoration:none;font-size:10px}.text-link:hover{text-decoration:underline}.forecast-status{font-size:10px;color:#89ac99;margin:0 0 12px}.forecast-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.forecast-summary .metric-card{min-height:88px}.forecast-chart{height:112px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end;gap:clamp(4px,1.2vw,12px);padding:12px 5px 0;margin-top:16px;border-bottom:1px solid #283831}.forecast-bar{height:var(--bar-height);min-height:3px;position:relative;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#78dfb2,#3f9775)}.forecast-bar i{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);font-size:8px;color:#74877e;font-style:normal}
   .seasons-panel{padding:17px 18px 18px}.season-heading{align-items:flex-end}.season-intro{max-width:275px;font-family:var(--body);font-size:10px;line-height:1.55;color:#84978e;margin:0 0 2px}.season-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}.season-card{display:flex;align-items:flex-start;gap:10px;position:relative;min-height:83px;padding:13px;border:1px solid #273832;border-radius:8px;background:#131f1b}.season-number{font-size:9px;color:#70b892;letter-spacing:.08em;padding-top:3px}.season-card h3{font-size:13px;font-weight:600;margin:0 0 4px}.season-card p{font-size:9px;color:#b2c3ba;margin:0 0 5px}.season-card small{display:block;max-width:210px;color:#809389;font-size:9px;line-height:1.4}.season-symbol{margin-left:auto;color:#7ac39b;font-size:17px}.app-footer{display:flex;justify-content:space-between;gap:15px;padding:18px 2px 5px;color:#71847a;font-size:9px}.app-footer b{color:#a4b8ac;letter-spacing:.1em}.app-footer a{color:#a0cfb0;text-decoration:none}.app-footer a:hover{text-decoration:underline}
   @media(max-width:1000px){.app-shell{grid-template-columns:200px minmax(0,1fr)}.data-grid{grid-template-columns:1fr}.map-visual{height:275px}.sidebar{padding-inline:13px}.metric-value.location-value strong{font-size:17px}}
-  @media(max-width:700px){.app-shell{display:block}.sidebar{position:static;width:100%;height:auto;padding:14px 20px;border-right:0;border-bottom:1px solid #1e2b2c;flex-direction:row;align-items:center}.brand{padding:0;font-size:13px}.brand-mark{width:29px;height:29px}.side-label,.side-link,.sidebar-bottom{display:none}.topbar{height:54px;padding-inline:20px}.challenge-pill{font-size:8px;padding:6px 8px}.content{padding:22px 18px 18px}.intro{padding-top:8px}.intro h1{font-size:46px}.intro-copy{font-size:12px}.data-stamp{display:none}.control-row{flex-wrap:wrap;padding:11px}.select-control{flex:1;justify-content:space-between}.select-control select{min-width:0;max-width:145px}.refresh-button{flex:1;justify-content:center}.fetch-status{flex-basis:100%;margin:0 3px 1px}.metric-grid{grid-template-columns:1fr}.metric-card{min-height:94px}.data-grid{grid-template-columns:1fr}.panel{padding:15px}.season-heading{display:block}.season-intro{margin-top:9px}.season-cards{grid-template-columns:1fr}.season-card{min-height:72px}.map-visual{height:250px}.app-footer{flex-direction:column;gap:6px;padding-top:15px}}
+  @media(max-width:700px){.app-shell{display:block}.sidebar{position:static;width:100%;height:auto;padding:14px 20px;border-right:0;border-bottom:1px solid #1e2b2c;flex-direction:row;align-items:center}.brand{padding:0;font-size:13px}.brand-mark{width:29px;height:29px}.side-label,.side-link,.sidebar-bottom{display:none}.topbar{height:54px;padding-inline:20px}.challenge-pill{font-size:8px;padding:6px 8px}.content{padding:22px 18px 18px}.intro{padding-top:8px}.intro h1{font-size:46px}.intro-copy{font-size:12px}.data-stamp{display:none}.control-row{flex-wrap:wrap;padding:11px}.select-control{flex:1;justify-content:space-between}.select-control select{min-width:0;max-width:145px}.refresh-button{flex:1;justify-content:center}.fetch-status{flex-basis:100%;margin:0 3px 1px}.metric-grid{grid-template-columns:1fr}.metric-card{min-height:94px}.data-grid{grid-template-columns:1fr}.panel{padding:15px}.forecast-summary{grid-template-columns:1fr}.season-heading{display:block}.season-intro{margin-top:9px}.season-cards{grid-template-columns:1fr}.season-card{min-height:72px}.map-visual{height:250px}.app-footer{flex-direction:column;gap:6px;padding-top:15px}}
   @media(prefers-reduced-motion:reduce){.bar,.refresh-button,.side-link{transition:none}.loading .refresh-icon{animation:none}}
 </style>
