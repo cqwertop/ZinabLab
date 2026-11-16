@@ -34,6 +34,18 @@ def explain(region: Region, status: dict, drivers: dict, outlook: dict | None, n
             "detail": f"Only about {w60.get('normal', 0):.0f} mm usually falls here over 60 days at this time of year. Little rain now is expected, not a failure." + (f" The next rainy month is usually {MONTHS[nxt - 1]}." if nxt else ""),
             "source": "NASA POWER climatology",
         })
+    elif not status.get("season", {}).get("inSeason") and state in ("severe-deficit", "deficit"):
+        last = next((x for x in region.seasons if ((month - 2) % 12 + 1) in x["months"] or ((month - 3) % 12 + 1) in x["months"]), None)
+        name = last["name"] if last else "rainy"
+        label = name.lower() if name.lower().endswith("rains") else f"{name} season"
+        factors.append({
+            "key": "season",
+            "phrase": f"the {label} ending earlier and weaker than usual",
+            "title": f"The {label} ended early",
+            "verdict": "primary",
+            "detail": f"The main rains are over for the year, and their final weeks brought less than usual. The 60-day shortfall is mostly that early finish rather than rain failing now.",
+            "source": "NASA POWER daily vs climatology",
+        })
     elif season:
         factors.append({
             "key": "season",
@@ -45,13 +57,13 @@ def explain(region: Region, status: dict, drivers: dict, outlook: dict | None, n
 
     if oni is not None:
         if region.group == "north" and tseason == "kiremt" and oni >= 0.5:
-            factors.append({"key": "enso", "title": f"El Niño is suppressing Kiremt rain (ONI {oni:+.1f})", "verdict": "primary", "detail": "El Niño weakens the monsoon flow that carries moisture to Ethiopia's northern and central highlands in June to September. The 2015 drought, one of the worst in 50 years, followed a strong El Niño.", "source": drivers["enso"]["source"]})
+            factors.append({"key": "enso", "phrase": "El Niño weakening the Kiremt monsoon", "title": f"El Niño is suppressing Kiremt rain (ONI {oni:+.1f})", "verdict": "primary", "detail": "El Niño weakens the monsoon flow that carries moisture to Ethiopia's northern and central highlands in June to September. The 2015 drought, one of the worst in 50 years, followed a strong El Niño.", "source": drivers["enso"]["source"]})
         elif region.group == "north" and tseason == "kiremt" and oni <= -0.5:
             factors.append({"key": "enso", "title": f"La Niña usually boosts Kiremt (ONI {oni:+.1f})", "verdict": "counter", "detail": "La Niña tends to strengthen highland summer rains, so it argues against a large-scale cause for any deficit here; look at local factors.", "source": drivers["enso"]["source"]})
         elif region.group == "south" and tseason == "ond" and oni <= -0.5:
-            factors.append({"key": "enso", "title": f"La Niña is suppressing the autumn rains (ONI {oni:+.1f})", "verdict": "primary", "detail": "La Niña cools the western Indian Ocean surface and weakens the October to December (Deyr / Hagaya) rains in southern and south-eastern Ethiopia. Five failed seasons in a row in 2020 to 2023 came with back-to-back La Niña.", "source": drivers["enso"]["source"]})
+            factors.append({"key": "enso", "phrase": "La Niña suppressing the autumn rains", "title": f"La Niña is suppressing the autumn rains (ONI {oni:+.1f})", "verdict": "primary", "detail": "La Niña cools the western Indian Ocean surface and weakens the October to December (Deyr / Hagaya) rains in southern and south-eastern Ethiopia. Five failed seasons in a row in 2020 to 2023 came with back-to-back La Niña.", "source": drivers["enso"]["source"]})
         elif region.group == "south" and tseason == "mam" and oni <= -0.5:
-            factors.append({"key": "enso", "title": f"La Niña is weighing on the spring rains (ONI {oni:+.1f})", "verdict": "contributing", "detail": "La Niña winters are often followed by poor March to May (Gu / Belg) rains in the south and south-east.", "source": drivers["enso"]["source"]})
+            factors.append({"key": "enso", "phrase": "La Niña weighing on the spring rains", "title": f"La Niña is weighing on the spring rains (ONI {oni:+.1f})", "verdict": "contributing", "detail": "La Niña winters are often followed by poor March to May (Gu / Belg) rains in the south and south-east.", "source": drivers["enso"]["source"]})
         elif region.group == "south" and tseason == "ond" and oni >= 0.5:
             factors.append({"key": "enso", "title": f"El Niño usually brings a wet autumn (ONI {oni:+.1f})", "verdict": "counter", "detail": "El Niño tends to enhance October to December rains in the south-east (the 2023 Deyr floods). A deficit now would be unusual and points to other causes.", "source": drivers["enso"]["source"]})
         else:
@@ -59,7 +71,7 @@ def explain(region: Region, status: dict, drivers: dict, outlook: dict | None, n
 
     if dmi is not None and region.group == "south" and tseason == "ond":
         if dmi <= -0.4:
-            factors.append({"key": "iod", "title": f"Negative Indian Ocean Dipole (DMI {dmi:+.2f})", "verdict": "contributing", "detail": "A cooler western Indian Ocean means less moisture for East Africa's short rains.", "source": drivers["iod"]["source"]})
+            factors.append({"key": "iod", "phrase": "a cool western Indian Ocean (negative IOD)", "title": f"Negative Indian Ocean Dipole (DMI {dmi:+.2f})", "verdict": "contributing", "detail": "A cooler western Indian Ocean means less moisture for East Africa's short rains.", "source": drivers["iod"]["source"]})
         elif dmi >= 0.4:
             factors.append({"key": "iod", "title": f"Positive Indian Ocean Dipole (DMI {dmi:+.2f})", "verdict": "counter", "detail": "A warm western Indian Ocean normally boosts the short rains (2019 and 2023 floods).", "source": drivers["iod"]["source"]})
         else:
@@ -67,7 +79,7 @@ def explain(region: Region, status: dict, drivers: dict, outlook: dict | None, n
 
     heat = status.get("heat") or {}
     if heat.get("anomaly") is not None and heat["anomaly"] >= 1.0:
-        factors.append({"key": "heat", "title": f"Days are {heat['anomaly']:.1f} °C hotter than normal", "verdict": "contributing", "detail": "Extra heat raises evaporation, so the rain that does fall dries out faster and crops and pasture stress sooner.", "source": "NASA POWER T2M"})
+        factors.append({"key": "heat", "phrase": f"unusual heat ({heat['anomaly']:+.1f} °C) drying out the rain that does fall", "title": f"Days are {heat['anomaly']:.1f} °C hotter than normal", "verdict": "contributing", "detail": "Extra heat raises evaporation, so the rain that does fall dries out faster and crops and pasture stress sooner.", "source": "NASA POWER T2M"})
 
     soil = status.get("soil") or {}
     if soil.get("anomaly") is not None and soil["anomaly"] <= -0.05:
@@ -100,7 +112,7 @@ def explain(region: Region, status: dict, drivers: dict, outlook: dict | None, n
         confidence = "high"
     elif state in ("severe-deficit", "deficit"):
         causes = [f for f in factors if f["verdict"] in ("primary", "contributing")]
-        lead = causes[0]["title"].split(" (")[0].lower() if causes else "local weather variability rather than a large-scale climate driver"
+        lead = (causes[0].get("phrase") or causes[0]["title"].split(" (")[0].lower()) if causes else "local weather variability rather than a large-scale climate driver"
         headline = f"{region.label} has had about {pct:.0f}% of its normal rain over the last 60 days. The most likely cause is {lead}."
         confidence = "high" if any(f["verdict"] == "primary" for f in factors) and len(causes) >= 2 else "medium" if causes else "low"
     elif state == "wet":

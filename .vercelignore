@@ -1,0 +1,11 @@
+backend/.venv
+backend/data/raw/chirps
+backend/data/raw/gpm
+backend/data/raw/boundaries/countries.zip
+backend/data/outputs/maps
+backend/data/outputs/charts
+backend/data/outputs/statistics/chirps_spatial_anomalies.csv
+backend/data/outputs/statistics/chirps_spatial_seasonal_anomalies.csv
+backend/data/cache
+**/__pycache__
+folder

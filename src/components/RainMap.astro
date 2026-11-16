@@ -57,8 +57,8 @@
   .leaflet-control-attribution a { color: var(--muted) !important; }
   .leaflet-bar a { background: var(--surface-2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
   .leaflet-bar { border: 1px solid var(--line) !important; border-radius: 12px !important; overflow: hidden; }
-  .region-label { background: transparent; border: 0; box-shadow: none; color: var(--bone); font-family: var(--display); font-weight: 800; font-size: 12px; text-shadow: 0 1px 6px #000, 0 0 2px #000; white-space: nowrap; }
-  .region-label::before { display: none; }
+  .leaflet-tooltip.region-label { background: transparent; padding: 0; border: 0; box-shadow: none; color: var(--bone); font-family: var(--display); font-weight: 800; font-size: 12px; text-shadow: 0 1px 6px #000, 0 0 2px #000; white-space: nowrap; }
+  .leaflet-tooltip.region-label::before { display: none; }
   .pulse-marker { width: 22px; height: 22px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 0 #ffb020aa; animation: ping 1.8s infinite; border: 3px solid var(--night); }
   @keyframes ping { 0% { box-shadow: 0 0 0 0 #ffb020aa; } 80%, 100% { box-shadow: 0 0 0 26px #ffb02000; } }
   .map-panel { position: absolute; left: 16px; right: 16px; bottom: 16px; z-index: 500; max-width: 640px; padding: 14px 16px; border-radius: 18px; background: #0c0a1ce6; border: 1px solid var(--line); backdrop-filter: blur(12px); }
@@ -109,13 +109,14 @@
 
   const root = document.querySelector<HTMLElement>('#map')!;
   const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
-  const map = L.map('leaflet-map', { zoomControl: true, attributionControl: true, preferCanvas: true, minZoom: 4, maxZoom: 9, zoomSnap: 0.25, scrollWheelZoom: false });
+  const map = L.map('leaflet-map', { zoomControl: false, attributionControl: true, preferCanvas: true, minZoom: 4, maxZoom: 9, zoomSnap: 0.25, scrollWheelZoom: false });
   map.fitBounds([[3.2, 33], [14.9, 48]]);
   map.on('focus', () => map.scrollWheelZoom.enable());
   map.on('blur', () => map.scrollWheelZoom.disable());
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19 }).addTo(map);
-  const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19, pane: 'shadowPane', opacity: 0.7 });
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { attribution: 'Basemap &copy; Esri', maxZoom: 16 }).addTo(map);
+  const labels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, pane: 'shadowPane', opacity: 0.8 });
 
   let mode: 'live' | 'history' | 'sat' = 'live';
   let regionsData: RegionsPayload | null = null;

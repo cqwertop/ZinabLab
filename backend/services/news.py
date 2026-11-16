@@ -25,7 +25,7 @@ CAUSES = {
     "Displacement": ["displaced", "displacement", "idp", "migrat"],
 }
 
-_gdelt_lock = asyncio.Lock()
+_gdelt_locks: dict[int, asyncio.Lock] = {}
 _gdelt_last = 0.0
 
 
@@ -36,7 +36,7 @@ def tag_causes(text: str) -> list[str]:
 
 async def _gdelt(query: str):
     global _gdelt_last
-    async with _gdelt_lock:
+    async with _gdelt_locks.setdefault(id(asyncio.get_running_loop()), asyncio.Lock()):
         wait = 5.6 - (time.time() - _gdelt_last)
         if wait > 0:
             await asyncio.sleep(wait)

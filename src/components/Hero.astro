@@ -60,6 +60,7 @@ const blades = Array.from({ length: 120 }, (_, i) => {
       <a class="btn btn-sun" href="#dry"><svg class="zi"><use href="#i-crack" /></svg>Find the dry zones</a>
       <button class="btn btn-ghost" type="button" data-open-gelada><svg class="zi"><use href="#i-ask" /></svg>Ask Gelada</button>
     </div>
+    <p class="gelada-note" data-reveal style="--d:.38s"><svg class="zi"><use href="#i-ask" /></svg><span><b>Gelada</b> is our AI chat assistant, named after Ethiopia's grass-eating highland primate. It reads the same live rain, ocean and news data as this site, then explains it in plain words.</span></p>
     <p class="sky-caption" data-reveal style="--d:.45s"><svg class="zi"><use href="#i-eye" /></svg><span data-sky-caption>Reading the sky over Ethiopia…</span></p>
   </div>
 
@@ -130,6 +131,9 @@ const blades = Array.from({ length: 120 }, (_, i) => {
   .hero-lede { max-width: 640px; font-size: clamp(1.12rem, 1.7vw, 1.38rem); color: #efe6f7; text-shadow: 0 2px 20px #0c0a1c; margin: 0; }
   .hero-lede em { color: var(--sun); font-style: normal; font-weight: 700; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+  .gelada-note { display: flex; align-items: flex-start; gap: 10px; max-width: 560px; margin: 14px 0 0; font-size: .92rem; line-height: 1.5; color: var(--muted); }
+  .gelada-note .zi { flex: none; color: var(--sun); margin-top: 3px; }
+  .gelada-note b { color: var(--ink); }
   .sky-caption { display: inline-flex; align-items: center; gap: 10px; margin: 6px 0 0; padding: 8px 14px; border-radius: 12px; background: #0c0a1c88; border: 1px solid #ffffff18; backdrop-filter: blur(8px); font-size: .92rem; color: var(--muted); }
   .sky-caption .zi { color: var(--sun); }
 

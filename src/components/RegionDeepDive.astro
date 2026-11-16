@@ -467,7 +467,8 @@
     const my = ++token;
     select.value = id;
     chips.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.region === id)));
-    chips.querySelector<HTMLElement>(`[data-region="${id}"]`)?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    const chip = chips.querySelector<HTMLElement>(`[data-region="${id}"]`);
+    if (chip) chips.scrollTo({ left: chip.offsetLeft - chips.clientWidth / 2 + chip.clientWidth / 2, behavior: 'smooth' });
     const name = regions.find((r) => r.id === id)?.name ?? id;
     body.innerHTML = `<div class="deep-loading"><span class="drip-loader"><i></i><i></i><i></i></span><span data-load-msg>Gathering clues for ${esc(name)}…</span></div>`;
     let k = 0;

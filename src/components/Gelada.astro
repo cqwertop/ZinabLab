@@ -14,7 +14,7 @@ const face = `
 ---
 <button class="gelada-fab" type="button" data-gelada-fab aria-label="Open Gelada, the rain assistant" aria-expanded="false" aria-controls="gelada-panel">
   <span class="fab-face" set:html={face} />
-  <span class="fab-bubble">Ask me about the rain</span>
+  <span class="fab-bubble"><b>Gelada</b> · your AI rain guide</span>
 </button>
 
 <div class="gelada-panel" id="gelada-panel" role="dialog" aria-modal="false" aria-labelledby="gelada-name" data-gelada-panel hidden>
@@ -24,8 +24,20 @@ const face = `
       <b id="gelada-name">Gelada</b>
       <span class="gp-status" data-gp-mode>Field guide for Ethiopia's rain</span>
     </div>
+    <button type="button" class="gp-icon" data-gp-about-toggle aria-label="What is Gelada?" aria-expanded="false" aria-controls="gp-about"><svg class="zi"><use href="#i-info" /></svg></button>
     <button type="button" class="gp-close" data-gp-close aria-label="Close chat"><svg class="zi"><use href="#i-close" /></svg></button>
   </header>
+  <section class="gp-about" id="gp-about" data-gp-about hidden aria-label="About Gelada">
+    <h3>Who is Gelada?</h3>
+    <p>Gelada is the <b>AI chat assistant</b> built into Zinab Lab. It is named after the gelada, a grass-eating primate found only in Ethiopia's highlands, whose life depends on the rain.</p>
+    <ul>
+      <li><svg class="zi"><use href="#i-drop" /></svg><span>Looks up <b>live data</b> before answering: NASA POWER rainfall, NOAA ocean indices, the Zinab forecast model, news headlines and Sentinel-1 radar passes.</span></li>
+      <li><svg class="zi"><use href="#i-map" /></svg><span>Can <b>jump the page</b> to any region it talks about, so you can see the charts behind its answer.</span></li>
+      <li><svg class="zi"><use href="#i-spark" /></svg><span>Uses <b>Claude by Anthropic</b> when the server has a key. Without one it answers in <b>offline mode</b>, straight from the same data with simpler wording.</span></li>
+      <li><svg class="zi"><use href="#i-info" /></svg><span>It gives general guidance, <b>not official warnings</b>. Check the Ethiopian Meteorological Institute for advisories.</span></li>
+    </ul>
+    <button type="button" class="btn btn-sun gp-about-ok" data-gp-about-ok>Got it, let's talk rain</button>
+  </section>
   <div class="gp-log" data-gp-log aria-live="polite"></div>
   <div class="gp-suggest" data-gp-suggest></div>
   <form class="gp-form" data-gp-form>
@@ -66,7 +78,17 @@ const face = `
   .gp-status { font-size: .8rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
   .gp-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--moss); box-shadow: 0 0 10px var(--moss); }
   .gp-status i.off { background: var(--sun); box-shadow: 0 0 10px var(--sun); }
-  .gp-close { margin-left: auto; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+  .gp-icon { margin-left: auto; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+  .gp-icon:hover, .gp-icon[aria-expanded='true'] { border-color: var(--sun); color: var(--sun); }
+  .gp-about { padding: 16px 18px; background: linear-gradient(160deg, #2a1a12, #17142c); border-bottom: 1px solid var(--line); overflow-y: auto; max-height: 70%; flex: none; animation: msgIn .35s var(--ease-out); }
+  .gp-about[hidden] { display: none; }
+  .gp-about h3 { margin: 0 0 6px; font-family: var(--display); font-size: 1.15rem; color: var(--sun); }
+  .gp-about p { margin: 0 0 10px; font-size: .92rem; color: var(--muted); line-height: 1.5; }
+  .gp-about ul { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+  .gp-about li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; font-size: .88rem; line-height: 1.45; color: var(--ink); }
+  .gp-about li .zi { color: var(--sun); margin-top: 2px; }
+  .gp-about-ok { width: 100%; justify-content: center; }
+  .gp-close { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; }
   .gp-close:hover { border-color: var(--sun); }
   .gp-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
   .msg { max-width: 88%; padding: 11px 14px; border-radius: 18px; font-size: .96rem; line-height: 1.55; animation: msgIn .35s var(--ease-out); overflow-wrap: anywhere; }
@@ -114,6 +136,9 @@ const face = `
   const suggest = panel.querySelector<HTMLElement>('[data-gp-suggest]')!;
   const send = panel.querySelector<HTMLButtonElement>('.gp-send')!;
   const KEY = 'zinab-gelada-chat';
+  const SEEN = 'zinab-gelada-intro';
+  const about = panel.querySelector<HTMLElement>('[data-gp-about]')!;
+  const aboutToggle = panel.querySelector<HTMLButtonElement>('[data-gp-about-toggle]')!;
   let history: ChatTurn[] = [];
   let busy = false;
 
@@ -180,7 +205,7 @@ const face = `
     } catch { history = []; }
     log.innerHTML = '';
     if (!history.length) {
-      addMsg('assistant', "Selam! I'm **Gelada**. I live in the Simien highlands and I eat almost nothing but grass, so I watch the rain very closely.\n\nAsk me where it's dry, why a region is missing rain, what the next months look like, or what the radar satellites see.");
+      addMsg('assistant', "Selam! I'm **Gelada**. My namesake lives in the Simien highlands and eats almost nothing but grass, so I watch the rain very closely. I'm the AI guide for this site, and I check live satellite, ocean and news data before I answer.\n\nAsk me where it's dry, why a region is missing rain, what the next months look like, or what the radar satellites see. Tap the **i** button above to learn more about me.");
     } else {
       history.forEach((h) => addMsg(h.role, h.content));
     }
@@ -227,8 +252,19 @@ const face = `
     panel.querySelector('[data-gp-mode]')!.innerHTML = mode === 'claude' ? '<i></i>Live · powered by Claude + Zinab data' : '<i class="off"></i>Offline mode · answering from Zinab data';
   }
 
+  function showAbout(show: boolean) {
+    about.hidden = !show;
+    aboutToggle.setAttribute('aria-expanded', String(show));
+    if (!show) {
+      try { localStorage.setItem(SEEN, '1'); } catch {}
+    }
+  }
+
   function open() {
     panel.hidden = false;
+    let seen = false;
+    try { seen = localStorage.getItem(SEEN) === '1'; } catch {}
+    if (!seen) showAbout(true);
     fab.setAttribute('aria-expanded', 'true');
     if (!log.childElementCount) restore();
     setTimeout(() => input.focus(), 50);
@@ -242,6 +278,8 @@ const face = `
 
   fab.addEventListener('click', () => (panel.hidden ? open() : close()));
   panel.querySelector('[data-gp-close]')!.addEventListener('click', close);
+  aboutToggle.addEventListener('click', () => showAbout(about.hasAttribute('hidden')));
+  panel.querySelector('[data-gp-about-ok]')!.addEventListener('click', () => { showAbout(false); input.focus(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) close(); });
   document.addEventListener('click', (e) => {
     const trigger = (e.target as Element).closest?.('[data-open-gelada]');

@@ -108,6 +108,18 @@ async def _offline(history: list[dict]):
     region = find_region_in_text(question)
     used = []
 
+    if re.search(r"(who are you|what are you|who is gelada|what is gelada|what's gelada|about you|your name|what can you do|help me|^help$)", q):
+        reply = (
+            "I'm **Gelada**, the AI rain guide inside Zinab Lab. I'm named after the gelada, a grass-eating primate that lives only in Ethiopia's highlands, so rain decides whether it eats.\n\n"
+            "What I can do:\n"
+            "- Rank the regions that are short of rain right now, using NASA POWER data.\n"
+            "- Explain why a region is dry: season timing, El Niño and the Indian Ocean, heat, soil moisture and news reports.\n"
+            "- Share the Zinab model's outlook for the next three months.\n"
+            "- List recent Sentinel-1 radar passes over a region.\n\n"
+            "Right now I'm in offline mode, answering straight from the data. With a Claude API key on the server I can hold a fuller conversation. I give general guidance, not official warnings."
+        )
+        return {"reply": reply, "tools": used, "mode": "offline", "focusRegion": None}
+
     if re.search(r"\b(sar|radar|sentinel)\b", q) and region:
         used.append("sar_passes")
         data = json.loads(await tools.run_tool("sar_passes", {"region": region.id}))
@@ -196,6 +208,7 @@ def suggestions():
     names = [r.label for r in load_regions()]
     month = MONTHS[date.today().month - 1]
     return [
+        "Who is Gelada and what can you do?",
         "Where is it not raining right now?",
         "Why is Somali dry?",
         f"Will {month} be wet in Oromia?",

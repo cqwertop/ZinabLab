@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable
 from .paths import CACHE_DIR
 
 _memory: dict[str, tuple[float, Any]] = {}
-_locks: dict[str, asyncio.Lock] = {}
+_locks: dict[tuple[int, str], asyncio.Lock] = {}
 
 
 def _file(key: str):
@@ -56,7 +56,7 @@ async def cached(key: str, ttl: float, producer: Callable[[], Awaitable[Any]]):
     value = read(key, ttl)
     if value is not None:
         return value
-    lock = _locks.setdefault(key, asyncio.Lock())
+    lock = _locks.setdefault((id(asyncio.get_running_loop()), key), asyncio.Lock())
     async with lock:
         value = read(key, ttl)
         if value is not None:

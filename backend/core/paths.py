@@ -1,8 +1,13 @@
+import os
+import tempfile
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = BASE_DIR / "data"
-CACHE_DIR = DATA_DIR / "cache"
+CACHE_DIR = Path(
+    os.environ.get("ZINAB_CACHE_DIR")
+    or (Path(tempfile.gettempdir()) / "zinab-cache" if os.environ.get("VERCEL") else DATA_DIR / "cache")
+)
 STATS_DIR = DATA_DIR / "outputs" / "statistics"
 BOUNDARIES_DIR = DATA_DIR / "raw" / "boundaries"
 ADM1_FILE = BOUNDARIES_DIR / "eth_adm1.geojson"

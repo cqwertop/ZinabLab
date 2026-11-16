@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "astro",
+  "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index" }],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "includeFiles": "backend/{main.py,core/**,services/**,ml/**,ai/**,routers/**,data/raw/boundaries/eth_adm1.geojson,data/outputs/statistics/chirps_spatial_monthly.csv,data/outputs/statistics/chirps_monthly_anomalies.csv,data/outputs/statistics/chirps_seasonal_anomalies.csv}",
+      "excludeFiles": "{node_modules/**,dist/**,src/**,public/**,.astro/**,backend/.venv/**,backend/data/raw/chirps/**,backend/data/raw/gpm/**,backend/data/cache/**}"
+    }
+  }
+}

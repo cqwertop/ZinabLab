@@ -2,19 +2,25 @@ import asyncio
 
 import httpx
 
-_client: httpx.AsyncClient | None = None
-_power_gate = asyncio.Semaphore(6)
+_clients: dict[int, httpx.AsyncClient] = {}
+_gates: dict[int, asyncio.Semaphore] = {}
+
+
+def loop_key() -> int:
+    return id(asyncio.get_running_loop())
 
 
 def client() -> httpx.AsyncClient:
-    global _client
-    if _client is None or _client.is_closed:
-        _client = httpx.AsyncClient(
+    key = loop_key()
+    existing = _clients.get(key)
+    if existing is None or existing.is_closed:
+        existing = httpx.AsyncClient(
             timeout=httpx.Timeout(45.0, connect=12.0),
             headers={"User-Agent": "ZinabLab/2.0 (NASA Space Apps rainfall research dashboard)"},
             follow_redirects=True,
         )
-    return _client
+        _clients[key] = existing
+    return existing
 
 
 async def get_json(url: str, params: dict | None = None, gate: asyncio.Semaphore | None = None, retries: int = 2):
@@ -41,9 +47,10 @@ async def get_text(url: str, params: dict | None = None):
 
 
 def power_gate() -> asyncio.Semaphore:
-    return _power_gate
+    return _gates.setdefault(loop_key(), asyncio.Semaphore(6))
 
 
 async def close():
-    if _client is not None and not _client.is_closed:
-        await _client.aclose()
+    existing = _clients.pop(loop_key(), None)
+    if existing is not None and not existing.is_closed:
+        await existing.aclose()

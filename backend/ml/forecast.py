@@ -138,7 +138,7 @@ def category(z: float) -> int:
 class ForecastEngine:
     def __init__(self):
         self.ready = False
-        self.lock = asyncio.Lock()
+        self.locks: dict[int, asyncio.Lock] = {}
         self.models: dict[int, Ridge] = {}
         self.sigma: dict[int, float] = {}
         self.climates: dict[str, RegionClimate] = {}
@@ -149,7 +149,7 @@ class ForecastEngine:
     async def ensure(self):
         if self.ready:
             return
-        async with self.lock:
+        async with self.locks.setdefault(id(asyncio.get_running_loop()), asyncio.Lock()):
             if self.ready:
                 return
             await self._train()

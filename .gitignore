@@ -22,3 +22,15 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# python
+__pycache__/
+*.pyc
+backend/.env
+backend/data/cache/
+
+# vercel
+.vercel
+
+backend/.venv/
+.venv/

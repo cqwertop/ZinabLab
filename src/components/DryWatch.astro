@@ -135,7 +135,7 @@
     });
     $('[data-rest]').innerHTML = resting.length
       ? resting.map((r) => `<div class="rest-item" data-region="${r.id}"><b>${esc(r.name)}</b><span>${r.season.nextRainyMonth ? `rains return ~${MONTHS[r.season.nextRainyMonth - 1]}` : ''}</span></div>`).join('')
-      : '<p class="card-sub" style="margin-top:10px">Right now every region is inside a rainy season, so each one is ranked on the left.</p>';
+      : '<p class="card-sub" style="margin-top:10px">No region is in a fully dry season right now, so every one is ranked on the left.</p>';
     $('[data-rest]').querySelectorAll<HTMLElement>('[data-region]').forEach((el) => el.addEventListener('click', () => store.select(el.dataset.region!)));
     $('[data-table]').innerHTML = `<table class="data-table"><thead><tr><th>Region</th><th>Status</th><th>Rain (mm)</th><th>Normal (mm)</th><th>% of normal</th><th>Dry spell (days)</th></tr></thead><tbody>${data.regions.map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.label)}</td><td class="num">${r.windows?.[win].rain.toFixed(0) ?? '—'}</td><td class="num">${r.windows?.[win].normal.toFixed(0) ?? '—'}</td><td class="num">${r.windows?.[win].pct?.toFixed(0) ?? '—'}</td><td class="num">${r.drySpellDays ?? '—'}</td></tr>`).join('')}</tbody></table>`;
     reveal(root);

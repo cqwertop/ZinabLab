@@ -11,8 +11,8 @@ from core.paths import BASE_DIR
 
 load_dotenv(BASE_DIR / ".env")
 
-from api.routes.chat import router as chat_router
-from api.routes.climate import router as climate_router
+from routers.chat import router as chat_router
+from routers.climate import router as climate_router
 from core import http
 from ml.forecast import engine
 from services import drivers, openmeteo, status
