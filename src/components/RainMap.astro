@@ -1,0 +1,408 @@
+<section class="section rainmap" id="map" aria-labelledby="map-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal><span class="geez">፪</span>The rain map</span>
+      <h2 class="headline" id="map-title" data-reveal style="--d:.08s">See where the sky <em>held back.</em></h2>
+      <p class="lede" data-reveal style="--d:.16s">Orange means less rain than normal, blue means more. Switch to the time machine to replay ten years of CHIRPS satellite rainfall, or put on NASA's satellite eyes to see rain, soil moisture and vegetation from space.</p>
+    </div>
+
+    <div class="map-shell card" data-reveal="scale">
+      <div class="map-modes" role="tablist" aria-label="Map mode">
+        <button role="tab" class="chip" aria-pressed="true" data-mode="live"><svg class="zi"><use href="#i-drop" /></svg>Live · last 60 days</button>
+        <button role="tab" class="chip" aria-pressed="false" data-mode="history"><svg class="zi"><use href="#i-calendar" /></svg>Time machine 2015–2024</button>
+        <button role="tab" class="chip" aria-pressed="false" data-mode="sat"><svg class="zi"><use href="#i-satellite" /></svg>Satellite eyes</button>
+      </div>
+      <div class="map-stage">
+        <div id="leaflet-map" class="leaflet-host" aria-label="Interactive map of Ethiopia's regions coloured by rainfall"></div>
+
+        <div class="map-panel time-panel" data-time-panel hidden>
+          <div class="time-row">
+            <button class="play" type="button" data-play aria-label="Play the rainfall timeline"><svg class="zi fill"><use href="#i-play" /></svg></button>
+            <div class="time-label"><span class="label">CHIRPS month</span><b data-time-label>—</b></div>
+            <div class="time-note" data-time-note></div>
+          </div>
+          <input type="range" min="0" max="119" value="0" step="1" data-time-range aria-label="Choose month" />
+          <div class="time-ticks" data-time-ticks></div>
+        </div>
+
+        <div class="map-panel sat-panel" data-sat-panel hidden>
+          <div class="sat-layers" role="radiogroup" aria-label="Satellite layer">
+            <button class="chip" aria-pressed="true" data-layer="imerg">Rain right now</button>
+            <button class="chip" aria-pressed="false" data-layer="smap">Soil moisture</button>
+            <button class="chip" aria-pressed="false" data-layer="ndvi">Plant greenness</button>
+            <button class="chip" aria-pressed="false" data-layer="viirs">True colour</button>
+          </div>
+          <label class="sat-date"><span class="label">Date</span><input type="date" data-sat-date /></label>
+          <p class="sat-desc" data-sat-desc></p>
+        </div>
+
+        <div class="map-legend" data-legend></div>
+
+        <aside class="map-side" data-map-side aria-live="polite">
+          <div class="skeleton" style="height:140px"></div>
+        </aside>
+        <div class="map-loading" data-map-loading><span class="drip-loader"><i></i><i></i><i></i></span>Loading the map</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .map-shell { padding: 0; }
+  .map-modes { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 18px; border-bottom: 1px solid var(--line-soft); }
+  .map-stage { position: relative; height: clamp(520px, 74vh, 760px); }
+  .leaflet-host { position: absolute; inset: 0; background: #0a0818; }
+  .leaflet-container { font-family: var(--body); background: #0a0818; }
+  .leaflet-control-attribution { background: #0c0a1ccc !important; color: var(--dim) !important; font-size: 10px; }
+  .leaflet-control-attribution a { color: var(--muted) !important; }
+  .leaflet-bar a { background: var(--surface-2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+  .leaflet-bar { border: 1px solid var(--line) !important; border-radius: 12px !important; overflow: hidden; }
+  .region-label { background: transparent; border: 0; box-shadow: none; color: var(--bone); font-family: var(--display); font-weight: 800; font-size: 12px; text-shadow: 0 1px 6px #000, 0 0 2px #000; white-space: nowrap; }
+  .region-label::before { display: none; }
+  .pulse-marker { width: 22px; height: 22px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 0 #ffb020aa; animation: ping 1.8s infinite; border: 3px solid var(--night); }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 #ffb020aa; } 80%, 100% { box-shadow: 0 0 0 26px #ffb02000; } }
+  .map-panel { position: absolute; left: 16px; right: 16px; bottom: 16px; z-index: 500; max-width: 640px; padding: 14px 16px; border-radius: 18px; background: #0c0a1ce6; border: 1px solid var(--line); backdrop-filter: blur(12px); }
+  .time-row { display: flex; align-items: center; gap: 14px; }
+  .play { width: 50px; height: 50px; flex: none; border-radius: 50%; border: 0; background: var(--sun); color: var(--night); display: grid; place-items: center; cursor: pointer; box-shadow: 4px 4px 0 var(--ember); transition: transform .3s var(--ease-spring); }
+  .play:hover { transform: scale(1.08) rotate(-6deg); }
+  .play .zi { width: 22px; height: 22px; }
+  .time-label { display: grid; line-height: 1.1; }
+  .time-label b { font-family: var(--display); font-size: 1.8rem; letter-spacing: -.03em; }
+  .time-note { margin-left: auto; text-align: right; font-size: .88rem; color: var(--muted); max-width: 260px; }
+  .map-panel input[type='range'] { width: 100%; margin: 12px 0 4px; accent-color: var(--sun); height: 22px; }
+  .time-ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: .7rem; color: var(--dim); }
+  .sat-layers { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sat-date { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .sat-date input { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-family: var(--mono); color-scheme: dark; }
+  .sat-desc { margin: 10px 0 0; font-size: .9rem; color: var(--muted); }
+  .map-legend { position: absolute; top: 16px; left: 16px; z-index: 500; padding: 12px 14px; border-radius: 14px; background: #0c0a1ce0; border: 1px solid var(--line); backdrop-filter: blur(10px); font-size: .8rem; color: var(--muted); max-width: 300px; }
+  .map-legend .lg-title { font-family: var(--display); font-weight: 800; color: var(--ink); font-size: .95rem; margin-bottom: 8px; }
+  .map-legend .lg-scale { display: flex; gap: 2px; }
+  .map-legend .lg-scale span { flex: 1; height: 12px; }
+  .map-legend .lg-scale span:first-child { border-radius: 6px 0 0 6px; }
+  .map-legend .lg-scale span:last-child { border-radius: 0 6px 6px 0; }
+  .map-legend .lg-ends { display: flex; justify-content: space-between; margin-top: 4px; font-family: var(--mono); font-size: .7rem; }
+  .map-legend .lg-rest { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .map-legend .lg-rest i { width: 16px; height: 12px; border-radius: 3px; background: repeating-linear-gradient(135deg, #2a2550 0 3px, #4a4363 3px 6px); }
+  .map-side { position: absolute; top: 16px; right: 16px; z-index: 500; width: min(320px, calc(100% - 32px)); padding: 18px; border-radius: 18px; background: #0c0a1ce8; border: 1px solid var(--line); backdrop-filter: blur(12px); }
+  .map-side h3 { font-size: 1.6rem; }
+  .map-side .ms-pct { font-family: var(--display); font-weight: 800; font-size: 3rem; letter-spacing: -.05em; line-height: 1; margin: 8px 0 2px; }
+  .map-side .ms-pct small { font-size: .85rem; color: var(--dim); letter-spacing: 0; font-family: var(--body); }
+  .map-side p { color: var(--muted); font-size: .92rem; margin: 8px 0 12px; }
+  .map-side .btn { padding: 10px 16px; font-size: .92rem; }
+  .map-loading { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; color: var(--muted); z-index: 600; background: #0a0818; transition: opacity .6s; }
+  .map-loading.done { opacity: 0; pointer-events: none; }
+  @media (max-width: 760px) {
+    .map-side { top: auto; bottom: 16px; left: 16px; right: 16px; width: auto; }
+    .map-stage:has(.map-panel:not([hidden])) .map-side { display: none; }
+    .map-legend { max-width: 200px; font-size: .72rem; }
+  }
+</style>
+
+<script>
+  import L from 'leaflet';
+  import 'leaflet/dist/leaflet.css';
+  import { bridge, type Grid, type RegionsPayload, type StatusLite } from '../lib/bridge';
+  import { store } from '../lib/store';
+  import { DRY, WET, NEUTRAL, RESTING, esc, icon, monthLabel, plainPct, statusColor, zColor } from '../lib/format';
+  import { reducedMotion } from '../lib/motion';
+
+  const root = document.querySelector<HTMLElement>('#map')!;
+  const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
+  const map = L.map('leaflet-map', { zoomControl: true, attributionControl: true, preferCanvas: true, minZoom: 4, maxZoom: 9, zoomSnap: 0.25, scrollWheelZoom: false });
+  map.fitBounds([[3.2, 33], [14.9, 48]]);
+  map.on('focus', () => map.scrollWheelZoom.enable());
+  map.on('blur', () => map.scrollWheelZoom.disable());
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19 }).addTo(map);
+  const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19, pane: 'shadowPane', opacity: 0.7 });
+
+  let mode: 'live' | 'history' | 'sat' = 'live';
+  let regionsData: RegionsPayload | null = null;
+  let grid: Grid | null = null;
+  let regionLayer: L.GeoJSON | null = null;
+  let gridLayer: L.LayerGroup | null = null;
+  let cellRects: L.Rectangle[] = [];
+  let satLayer: L.TileLayer | null = null;
+  let marker: L.Marker | null = null;
+  let monthIndex = 0;
+  let playing = false;
+  let playTimer = 0;
+  const statusById = new Map<string, StatusLite>();
+
+  function legendLive() {
+    $('[data-legend]').innerHTML = `<div class="lg-title">Rain vs normal, last 60 days</div>
+      <div class="lg-scale">${[...DRY].reverse().map((c) => `<span style="background:${c}"></span>`).join('')}<span style="background:${NEUTRAL}"></span>${WET.map((c) => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="lg-ends"><span>&lt;40%</span><span>normal</span><span>&gt;200%</span></div>
+      <div class="lg-rest"><i></i>Normal dry season</div>`;
+  }
+
+  function legendHistory() {
+    $('[data-legend]').innerHTML = `<div class="lg-title">Monthly rain anomaly (z-score)</div>
+      <div class="lg-scale">${[...DRY].reverse().map((c) => `<span style="background:${c}"></span>`).join('')}<span style="background:${NEUTRAL}"></span>${WET.map((c) => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="lg-ends"><span>much drier</span><span>normal</span><span>much wetter</span></div>
+      <div class="lg-rest" style="opacity:.8">Dry-season months show as normal</div>`;
+  }
+
+  const SAT = {
+    imerg: { id: 'IMERG_Precipitation_Rate', matrix: 'GoogleMapsCompatible_Level6', ext: 'png', zoom: 6, lag: 1, title: 'GPM IMERG rain rate', desc: 'NASA GPM IMERG: where it is raining, merged from a constellation of microwave satellites. Brighter colours mean heavier rain.', legend: 'linear-gradient(90deg,#00c8ff,#00ff6a,#ffff00,#ff8a00,#ff0040)' },
+    smap: { id: 'SMAP_L4_Analyzed_Surface_Soil_Moisture', matrix: 'GoogleMapsCompatible_Level6', ext: 'png', zoom: 6, lag: 3, title: 'SMAP soil moisture', desc: 'NASA SMAP L-band radiometer, assimilated into a land model: how wet the top 5 cm of soil is. Brown is dry, blue is wet.', legend: 'linear-gradient(90deg,#8c510a,#d8b365,#f6e8c3,#5ab4ac,#01665e)' },
+    ndvi: { id: 'MODIS_Terra_NDVI_8Day', matrix: 'GoogleMapsCompatible_Level9', ext: 'png', zoom: 9, lag: 10, title: 'MODIS plant greenness (NDVI)', desc: 'Terra MODIS 8-day vegetation index. Green pasture and crops show up weeks after good rain, and fade fast in drought.', legend: 'linear-gradient(90deg,#a87b3a,#d9c47b,#a6d96a,#33a02c,#00441b)' },
+    viirs: { id: 'VIIRS_SNPP_CorrectedReflectance_TrueColor', matrix: 'GoogleMapsCompatible_Level9', ext: 'jpg', zoom: 9, lag: 1, title: 'VIIRS true colour', desc: 'Suomi NPP VIIRS true-colour image: clouds, dust and green land as your eye would see it from orbit.', legend: '' },
+  } as const;
+  let satKey: keyof typeof SAT = 'imerg';
+
+  function isoDaysAgo(n: number) {
+    const d = new Date(Date.now() - n * 864e5);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function showSat() {
+    const cfg = SAT[satKey];
+    const dateInput = $<HTMLInputElement>('[data-sat-date]');
+    const date = dateInput.value || isoDaysAgo(cfg.lag);
+    if (satLayer) map.removeLayer(satLayer);
+    satLayer = L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${cfg.id}/default/${date}/${cfg.matrix}/{z}/{y}/{x}.${cfg.ext}`, { maxNativeZoom: cfg.zoom, maxZoom: 9, opacity: satKey === 'viirs' ? 1 : 0.85, attribution: 'NASA GIBS / EOSDIS' }).addTo(map);
+    $('[data-sat-desc]').textContent = cfg.desc;
+    $('[data-legend]').innerHTML = `<div class="lg-title">${cfg.title}</div>${cfg.legend ? `<div class="lg-scale"><span style="background:${cfg.legend};border-radius:6px"></span></div><div class="lg-ends"><span>low</span><span>high</span></div>` : '<div>Natural colour</div>'}<div class="lg-rest" style="opacity:.8">${esc(date)}</div>`;
+    regionLayer?.setStyle({ fillOpacity: 0, weight: 1.2, color: '#f8f0e2', opacity: 0.6 });
+  }
+
+  function styleRegion(feature?: GeoJSON.Feature) {
+    const id = feature?.properties?.id as string;
+    const st = statusById.get(id);
+    const selected = id === store.region;
+    const resting = st?.status === 'seasonal-dry';
+    return {
+      fillColor: st ? statusColor(st.status, st.windows?.d60.pct ?? null) : RESTING,
+      fillOpacity: mode === 'live' ? (resting ? 0.35 : 0.78) : 0,
+      color: selected ? '#ffb020' : '#0c0a1c',
+      weight: selected ? 3.5 : 1.4,
+      opacity: mode === 'live' ? 1 : 0.6,
+      dashArray: resting ? '4 4' : undefined,
+    };
+  }
+
+  function regionTip(id: string, name: string) {
+    const st = statusById.get(id);
+    if (!st || !st.windows) return `<b>${esc(name)}</b>`;
+    return `<b>${esc(name)}</b><br>${esc(st.label)}<div class="t-row"><span>Last 60 days</span><span>${st.windows.d60.rain.toFixed(0)} mm</span></div><div class="t-row"><span>Normal</span><span>${st.windows.d60.normal.toFixed(0)} mm</span></div><div class="t-row"><span>Share of normal</span><span>${st.windows.d60.pct?.toFixed(0) ?? '—'}%</span></div>`;
+  }
+
+  function drawRegions() {
+    if (!regionsData) return;
+    regionLayer?.remove();
+    regionLayer = L.geoJSON(regionsData.geojson, {
+      style: styleRegion,
+      onEachFeature: (feature, layer) => {
+        const id = feature.properties!.id as string;
+        const name = feature.properties!.name as string;
+        layer.on('mouseover', (e: L.LeafletMouseEvent) => {
+          (layer as L.Path).setStyle({ weight: 3, color: '#f8f0e2' });
+          const tip = document.querySelector<HTMLElement>('.zl-tip');
+          if (tip) {
+            tip.innerHTML = regionTip(id, name);
+            tip.classList.add('show');
+            tip.style.transform = `translate(${e.originalEvent.clientX + 16}px, ${e.originalEvent.clientY + 16}px)`;
+          }
+        });
+        layer.on('mousemove', (e: L.LeafletMouseEvent) => {
+          const tip = document.querySelector<HTMLElement>('.zl-tip');
+          if (tip) tip.style.transform = `translate(${e.originalEvent.clientX + 16}px, ${e.originalEvent.clientY + 16}px)`;
+        });
+        layer.on('mouseout', () => {
+          regionLayer?.resetStyle(layer as L.Path);
+          if (mode === 'sat') (layer as L.Path).setStyle({ fillOpacity: 0, weight: 1.2, color: '#f8f0e2', opacity: 0.6 });
+          document.querySelector('.zl-tip')?.classList.remove('show');
+        });
+        layer.on('click', () => store.select(id, 'map'));
+        if (layer instanceof L.Path) {
+          const center = (layer as L.Polygon).getBounds().getCenter();
+          const anchor = regionsData!.regions.find((r) => r.id === id)?.anchor;
+          L.tooltip({ permanent: true, direction: 'center', className: 'region-label', interactive: false }).setLatLng(anchor ? [anchor.lat, anchor.lon] : center).setContent(esc(name)).addTo(labelsGroup);
+        }
+      },
+    }).addTo(map);
+  }
+
+  const labelsGroup = L.layerGroup().addTo(map);
+
+  function drawMask() {
+    if (!regionsData) return;
+    const outline = regionsData.outline.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon;
+    const rings: L.LatLngExpression[][] = [];
+    const polys = outline.type === 'Polygon' ? [outline.coordinates] : outline.coordinates;
+    polys.forEach((poly) => rings.push(poly[0].map(([lng, lat]) => [lat, lng] as L.LatLngExpression)));
+    L.polygon([[[-90, -180], [-90, 180], [90, 180], [90, -180]], ...rings], { stroke: false, fillColor: '#0c0a1c', fillOpacity: 0.62, interactive: false }).addTo(map);
+    L.geoJSON(regionsData.outline, { style: { color: '#ffb020', weight: 2, fill: false, opacity: 0.9 }, interactive: false }).addTo(map);
+  }
+
+  function placeMarker() {
+    const r = regionsData?.regions.find((x) => x.id === store.region);
+    if (!r) return;
+    const ll: L.LatLngExpression = [r.anchor.lat, r.anchor.lon];
+    if (!marker) {
+      marker = L.marker(ll, { icon: L.divIcon({ className: '', html: '<div class="pulse-marker"></div>', iconSize: [22, 22], iconAnchor: [11, 11] }), interactive: false, keyboard: false }).addTo(map);
+    } else {
+      marker.setLatLng(ll);
+    }
+  }
+
+  function renderSide() {
+    const side = $('[data-map-side]');
+    const r = regionsData?.regions.find((x) => x.id === store.region);
+    const st = statusById.get(store.region);
+    if (!r) return;
+    const pct = st?.windows?.d60.pct ?? null;
+    const c = st ? statusColor(st.status, pct) : RESTING;
+    side.innerHTML = `<span class="label">Selected region</span>
+      <h3>${esc(r.name)}</h3>
+      <div class="ms-pct" style="color:${c}">${pct === null ? '—' : pct.toFixed(0)}<small>% of normal rain</small></div>
+      <span class="badge" style="color:${c}"><span class="dot"></span>${esc(st?.label ?? 'Loading')}</span>
+      <p>${st?.status === 'seasonal-dry' ? 'This is the normal dry season here, so little rain is expected right now.' : `Over the last 60 days ${esc(r.name)} got ${plainPct(pct)}.`} ${esc(r.livelihood)}.</p>
+      <a class="btn btn-sun" href="#region">${icon('search')}Why? Dig in</a>`;
+  }
+
+  function buildGrid() {
+    if (!grid || gridLayer) return;
+    gridLayer = L.layerGroup();
+    const half = grid.cellSize / 2;
+    cellRects = grid.cells.map((c, i) => {
+      const rect = L.rectangle([[c.lat - half, c.lon - half], [c.lat + half, c.lon + half]], { stroke: false, fillOpacity: 0.82, fillColor: NEUTRAL, interactive: true });
+      rect.on('mouseover', (e: L.LeafletMouseEvent) => {
+        const tip = document.querySelector<HTMLElement>('.zl-tip');
+        if (!tip || !grid) return;
+        tip.innerHTML = `<b>${monthLabel(grid.months[monthIndex])}</b><div class="t-row"><span>Rain</span><span>${grid.mm[monthIndex][i]} mm</span></div><div class="t-row"><span>Anomaly</span><span>${grid.z[monthIndex][i] > 0 ? '+' : ''}${grid.z[monthIndex][i].toFixed(1)} σ</span></div><div class="t-row"><span>Cell</span><span>${c.lat.toFixed(2)}°N ${c.lon.toFixed(2)}°E</span></div>`;
+        tip.classList.add('show');
+        tip.style.transform = `translate(${e.originalEvent.clientX + 16}px, ${e.originalEvent.clientY + 16}px)`;
+      });
+      rect.on('mouseout', () => document.querySelector('.zl-tip')?.classList.remove('show'));
+      rect.addTo(gridLayer!);
+      return rect;
+    });
+    const ticks = $('[data-time-ticks]');
+    const years = [...new Set(grid.months.map((m) => m.slice(0, 4)))];
+    ticks.innerHTML = years.map((y) => `<span>${y}</span>`).join('');
+    const range = $<HTMLInputElement>('[data-time-range]');
+    range.max = String(grid.months.length - 1);
+    const startIdx = grid.months.indexOf('2015-08');
+    monthIndex = startIdx >= 0 ? startIdx : 0;
+    range.value = String(monthIndex);
+  }
+
+  const EVENTS: Record<string, string> = {
+    '2015': 'Strong El Niño: Kiremt failed, one of the worst droughts in 50 years.',
+    '2016': 'Recovery year, but Somali region hit by failed Gu and Deyr.',
+    '2020': 'La Niña begins: first of five failed rainy seasons in the south-east.',
+    '2021': 'La Niña: Deyr fails again across Somali and Borena.',
+    '2022': 'Third La Niña year: the worst Horn of Africa drought in 40 years.',
+    '2023': 'El Niño and positive IOD: Deyr floods in Somali region.',
+    '2024': 'Wetter Kiremt; Gambela and Afar floods.',
+  };
+
+  function paintMonth() {
+    if (!grid) return;
+    const z = grid.z[monthIndex];
+    cellRects.forEach((r, i) => r.setStyle({ fillColor: zColor(z[i]) }));
+    const ym = grid.months[monthIndex];
+    $('[data-time-label]').textContent = monthLabel(ym);
+    $<HTMLInputElement>('[data-time-range]').value = String(monthIndex);
+    const dryShare = z.filter((v) => v < -0.5).length / z.length;
+    $('[data-time-note]').innerHTML = `${EVENTS[ym.slice(0, 4)] ?? ''}<br><b style="color:var(--dry-0)">${(dryShare * 100).toFixed(0)}%</b> of cells drier than normal`;
+  }
+
+  function stopPlay() {
+    playing = false;
+    clearInterval(playTimer);
+    $('[data-play]').innerHTML = '<svg class="zi fill"><use href="#i-play"/></svg>';
+  }
+
+  function togglePlay() {
+    if (playing) return stopPlay();
+    playing = true;
+    $('[data-play]').innerHTML = '<svg class="zi"><use href="#i-pause"/></svg>';
+    playTimer = window.setInterval(() => {
+      if (!grid) return;
+      monthIndex = (monthIndex + 1) % grid.months.length;
+      paintMonth();
+    }, reducedMotion() ? 1200 : 420);
+  }
+
+  async function setMode(next: typeof mode) {
+    mode = next;
+    root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === next)));
+    $('[data-time-panel]').hidden = next !== 'history';
+    $('[data-sat-panel]').hidden = next !== 'sat';
+    stopPlay();
+    if (satLayer && next !== 'sat') {
+      map.removeLayer(satLayer);
+      satLayer = null;
+    }
+    if (gridLayer && next !== 'history') map.removeLayer(gridLayer);
+    if (next === 'sat') labels.addTo(map);
+    else map.removeLayer(labels);
+    if (next === 'live') {
+      regionLayer?.setStyle(styleRegion);
+      legendLive();
+    }
+    if (next === 'history') {
+      regionLayer?.setStyle(styleRegion);
+      legendHistory();
+      if (!grid) {
+        $('[data-time-label]').textContent = 'Loading…';
+        grid = await bridge.grid();
+        buildGrid();
+      }
+      gridLayer!.addTo(map);
+      regionLayer?.bringToFront();
+      paintMonth();
+    }
+    if (next === 'sat') showSat();
+  }
+
+  root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode as typeof mode)));
+  root.querySelectorAll<HTMLButtonElement>('[data-layer]').forEach((b) => b.addEventListener('click', () => {
+    satKey = b.dataset.layer as keyof typeof SAT;
+    root.querySelectorAll<HTMLButtonElement>('[data-layer]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    $<HTMLInputElement>('[data-sat-date]').value = isoDaysAgo(SAT[satKey].lag);
+    showSat();
+  }));
+  $<HTMLInputElement>('[data-sat-date]').max = isoDaysAgo(0);
+  $<HTMLInputElement>('[data-sat-date]').value = isoDaysAgo(SAT.imerg.lag);
+  $<HTMLInputElement>('[data-sat-date]').addEventListener('change', showSat);
+  $('[data-play]').addEventListener('click', togglePlay);
+  $<HTMLInputElement>('[data-time-range]').addEventListener('input', (e) => {
+    stopPlay();
+    monthIndex = Number((e.target as HTMLInputElement).value);
+    paintMonth();
+  });
+
+  store.subscribe((id, source) => {
+    regionLayer?.setStyle(mode === 'sat' ? { fillOpacity: 0, weight: 1.2, color: '#f8f0e2', opacity: 0.6 } : styleRegion);
+    if (mode === 'sat') regionLayer?.eachLayer((l) => {
+      const f = (l as L.GeoJSON & { feature: GeoJSON.Feature }).feature;
+      if (f?.properties?.id === id) (l as L.Path).setStyle({ color: '#ffb020', weight: 3.5 });
+    });
+    placeMarker();
+    renderSide();
+    const r = regionsData?.regions.find((x) => x.id === id);
+    if (r && source !== 'boot') map.flyTo([r.anchor.lat, r.anchor.lon], Math.max(map.getZoom(), 5.5), { duration: reducedMotion() ? 0 : 1.2 });
+  });
+
+  Promise.all([bridge.regions(), bridge.pulse().catch(() => null)]).then(([regions, p]) => {
+    regionsData = regions;
+
+    p?.regions.forEach((r) => statusById.set(r.id, r));
+    drawMask();
+    drawRegions();
+    placeMarker();
+    renderSide();
+    legendLive();
+    $('[data-map-loading]').classList.add('done');
+    setTimeout(() => map.invalidateSize(), 200);
+  }).catch((err) => {
+    $('[data-map-loading]').innerHTML = `<div class="error-box">${icon('info')}<div><b>Map data is offline.</b> ${esc(err.message)}</div></div>`;
+  });
+
+  new ResizeObserver(() => map.invalidateSize()).observe($('#leaflet-map'));
+</script>

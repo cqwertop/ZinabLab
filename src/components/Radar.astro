@@ -1,0 +1,244 @@
+<section class="section radar" id="radar" aria-labelledby="radar-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal><span class="geez">፭</span>Dancing with the SARs</span>
+      <h2 class="headline" id="radar-title" data-reveal style="--d:.08s">Radar sees the ground <span class="rain-text">through the storm.</span></h2>
+      <p class="lede" data-reveal style="--d:.16s">Synthetic Aperture Radar (SAR) satellites like Sentinel-1 and NASA-ISRO's NISAR send their own microwave pulses, so they work at night and straight through clouds, exactly when rain is falling. Wet soil bounces back more energy than dry soil, so radar can tell where the ground is drinking and where it is drying out.</p>
+    </div>
+
+    <div class="radar-grid">
+      <article class="card sar-lab" data-reveal>
+        <div class="sar-top">
+          <span class="label"><svg class="zi"><use href="#i-radar" /></svg> Try it: how SAR feels the soil</span>
+          <label class="cloud-toggle"><input type="checkbox" data-clouds checked /> <span>Storm clouds</span></label>
+        </div>
+        <svg class="sar-scene" viewBox="0 0 600 380" role="img" aria-label="Animated radar satellite sending pulses to the ground">
+          <defs>
+            <linearGradient id="soil-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--soil-top)" /><stop offset="1" stop-color="#1a0f0a" /></linearGradient>
+            <radialGradient id="beam-g" cx="0.5" cy="0" r="1"><stop offset="0" stop-color="#4cc3ff" stop-opacity=".35" /><stop offset="1" stop-color="#4cc3ff" stop-opacity="0" /></radialGradient>
+          </defs>
+          <path class="orbit" d="M-20 70 Q300 20 620 70" />
+          <g class="sat" data-sat>
+            <rect x="-14" y="-10" width="28" height="20" rx="3" fill="#cfd6e6" />
+            <rect x="-70" y="-6" width="50" height="12" fill="#2f95f0" stroke="#9ad8ff" stroke-width="1" />
+            <rect x="20" y="-6" width="50" height="12" fill="#2f95f0" stroke="#9ad8ff" stroke-width="1" />
+            <rect x="-10" y="10" width="20" height="5" fill="#ffb020" />
+          </g>
+          <path class="beam" d="M300 62 L190 300 L410 300 Z" fill="url(#beam-g)" />
+          <g class="pulses" data-pulses></g>
+          <g class="clouds" data-cloud-layer>
+            <ellipse cx="200" cy="170" rx="120" ry="34" />
+            <ellipse cx="300" cy="150" rx="110" ry="40" />
+            <ellipse cx="420" cy="175" rx="120" ry="32" />
+            <g class="rainlines">
+              <line x1="160" y1="200" x2="150" y2="260" /><line x1="210" y1="205" x2="200" y2="270" /><line x1="260" y1="195" x2="250" y2="265" /><line x1="320" y1="200" x2="310" y2="268" /><line x1="380" y1="205" x2="370" y2="262" /><line x1="440" y1="200" x2="430" y2="266" />
+            </g>
+          </g>
+          <rect x="0" y="300" width="600" height="80" fill="url(#soil-g)" />
+          <path class="soil-cracks" d="M80 310 l20 20 -10 20M200 305 l-10 30 20 25M350 312 l15 18 -5 30M480 306 l-20 26 12 30" />
+          <g class="sprouts" data-sprouts>
+            <path d="M120 300 q-4 -18 -12 -22 M120 300 q4 -16 12 -20" /><path d="M260 300 q-4 -18 -12 -22 M260 300 q4 -16 12 -20" /><path d="M400 300 q-4 -18 -12 -22 M400 300 q4 -16 12 -20" /><path d="M530 300 q-4 -18 -12 -22 M530 300 q4 -16 12 -20" />
+          </g>
+          <g class="eye-cam" transform="translate(520 40)">
+            <circle r="18" fill="#17142c" stroke="#948dae" />
+            <circle r="7" fill="#948dae" />
+            <text x="0" y="36" text-anchor="middle">optical</text>
+            <path class="blocked" d="M-14 -14 L14 14" />
+          </g>
+        </svg>
+        <div class="sar-controls">
+          <label for="soil-range"><span class="label">Soil moisture</span><b data-soil-label>Dry</b></label>
+          <input id="soil-range" type="range" min="0" max="100" value="20" data-soil />
+          <div class="sar-readout">
+            <div><span class="label">Radar echo (backscatter)</span><b data-db>−17 dB</b></div>
+            <div class="echo-meter"><span data-echo></span></div>
+          </div>
+          <p class="sar-note" data-sar-note>With storm clouds overhead, an optical camera sees only white. The radar pulse goes straight through.</p>
+          <p class="sar-small">Values are illustrative for C-band VV over bare soil. Real backscatter also depends on roughness, vegetation and viewing angle.</p>
+        </div>
+      </article>
+
+      <article class="card sar-feed" data-reveal style="--d:.1s">
+        <span class="label"><svg class="zi"><use href="#i-satellite" /></svg> Live from orbit</span>
+        <h3 class="card-title" style="margin:6px 0 4px">Latest Sentinel-1 passes over <span data-sar-region>…</span></h3>
+        <p class="card-sub">Real radar scenes from the Alaska Satellite Facility, last 45 days. Click a quicklook to enlarge.</p>
+        <div class="sar-passes" data-passes>
+          <div class="skeleton" style="height:120px"></div><div class="skeleton" style="height:120px"></div><div class="skeleton" style="height:120px"></div>
+        </div>
+        <a class="btn btn-ghost" data-asf target="_blank" rel="noopener noreferrer" href="https://search.asf.alaska.edu/"><svg class="zi"><use href="#i-out" /></svg>Explore in ASF Vertex</a>
+        <div class="nisar">
+          <svg class="zi"><use href="#i-spark" /></svg>
+          <p><b>Coming into focus: NISAR.</b> The NASA-ISRO L-band and S-band radar launched in 2025 maps nearly all of Earth's land every 12 days. Its longer wavelength reaches deeper into soil and through crop canopy, which makes it a strong tool for tracking drought across Ethiopia's farmland.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+  <dialog class="lightbox" data-lightbox>
+    <button type="button" class="lb-close" data-lb-close aria-label="Close"><svg class="zi"><use href="#i-close" /></svg></button>
+    <img alt="" data-lb-img />
+    <p data-lb-cap></p>
+  </dialog>
+</section>
+
+<style is:global>
+  .radar { background: radial-gradient(80vw 60vh at 20% 50%, #0d2a4a55, transparent 70%); }
+  .radar-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
+  .sar-lab { --soil-top: #8a5a2b; }
+  .sar-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .cloud-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: .9rem; color: var(--muted); }
+  .cloud-toggle input { accent-color: var(--sun); width: 18px; height: 18px; }
+  .sar-scene { width: 100%; height: auto; margin: 10px 0; border-radius: 16px; background: linear-gradient(180deg, #070618, #1a1240 70%, #2a1838); }
+  .sar-scene text { font-family: var(--mono); font-size: 10px; fill: var(--dim); }
+  .orbit { fill: none; stroke: #ffffff22; stroke-dasharray: 4 6; }
+  .sat { animation: satMove 12s linear infinite; }
+  @keyframes satMove { 0% { transform: translate(40px, 56px); } 50% { transform: translate(300px, 44px); } 100% { transform: translate(560px, 56px); } }
+  .beam { opacity: .7; animation: beamSweep 12s linear infinite; transform-origin: 300px 62px; }
+  @keyframes beamSweep { 0% { transform: translateX(-260px); } 50% { transform: translateX(0); } 100% { transform: translateX(260px); } }
+  .pulse-arc { fill: none; stroke: #4cc3ff; stroke-width: 2.5; stroke-linecap: round; }
+  .echo-arc { fill: none; stroke: #ffb020; stroke-linecap: round; }
+  .clouds { transition: opacity .6s; }
+  .clouds ellipse { fill: #c9c4dd; opacity: .85; filter: blur(2px); }
+  .rainlines line { stroke: #9ad8ff; stroke-width: 2; stroke-linecap: round; opacity: .7; stroke-dasharray: 8 10; animation: rainfall .7s linear infinite; }
+  @keyframes rainfall { to { stroke-dashoffset: -18; } }
+  .sar-lab.no-clouds .clouds { opacity: 0; }
+  .soil-cracks { fill: none; stroke: #2a1408; stroke-width: 2.5; transition: opacity .6s; }
+  .sprouts path { fill: none; stroke: var(--moss); stroke-width: 2.5; stroke-linecap: round; transform-box: fill-box; transform-origin: bottom; transition: transform .8s var(--ease-spring), opacity .6s; }
+  .eye-cam .blocked { stroke: var(--ember); stroke-width: 3; stroke-linecap: round; transition: opacity .4s; }
+  .sar-lab.no-clouds .eye-cam .blocked { opacity: 0; }
+  .sar-controls { display: grid; gap: 10px; }
+  .sar-controls label { display: flex; justify-content: space-between; align-items: baseline; }
+  .sar-controls label b { font-family: var(--display); font-size: 1.2rem; }
+  .sar-controls input[type='range'] { width: 100%; accent-color: var(--rain); height: 24px; }
+  .sar-readout { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+  .sar-readout b { display: block; font-family: var(--display); font-size: 2.2rem; letter-spacing: -.03em; color: var(--sun); line-height: 1.05; }
+  .echo-meter { height: 16px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+  .echo-meter span { display: block; height: 100%; background: linear-gradient(90deg, #4a4363, var(--sun)); border-radius: 999px; transition: width .4s var(--ease-out); }
+  .sar-note { margin: 4px 0 0; color: var(--muted); }
+  .sar-small { margin: 0; font-size: .8rem; color: var(--dim); }
+  .sar-feed { display: flex; flex-direction: column; gap: 12px; }
+  .sar-passes { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 6px 0; }
+  .sar-pass { position: relative; border-radius: 14px; overflow: hidden; background: var(--surface-3); border: 1px solid var(--line-soft); cursor: zoom-in; padding: 0; text-align: left; transition: transform .35s var(--ease-spring), border-color .2s; }
+  .sar-pass:hover { transform: translateY(-4px) rotate(-.6deg); border-color: var(--rain); }
+  .sar-pass img { width: 100%; aspect-ratio: 1.25; object-fit: cover; filter: grayscale(1) contrast(1.15); transition: filter .4s; }
+  .sar-pass:hover img { filter: grayscale(.2) contrast(1.2) sepia(.4) hue-rotate(160deg); }
+  .sar-pass .pmeta { display: block; padding: 8px 10px; font-size: .78rem; color: var(--muted); font-family: var(--mono); line-height: 1.4; }
+  .sar-pass .pmeta b { color: var(--ink); font-family: var(--display); font-size: .92rem; }
+  .sar-feed .btn { align-self: flex-start; }
+  .nisar { display: flex; gap: 12px; padding: 14px; border-radius: 16px; background: #4cc3ff12; border: 1px solid #4cc3ff33; margin-top: auto; }
+  .nisar .zi { color: var(--rain); width: 28px; height: 28px; }
+  .nisar p { margin: 0; font-size: .92rem; color: var(--muted); }
+  .nisar b { color: var(--ink); }
+  .lightbox { max-width: min(900px, 92vw); padding: 14px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); color: var(--ink); }
+  .lightbox::backdrop { background: #0c0a1cdd; backdrop-filter: blur(6px); }
+  .lightbox img { max-height: 72vh; margin: 0 auto; border-radius: 12px; }
+  .lightbox p { margin: 10px 4px 0; font-family: var(--mono); font-size: .82rem; color: var(--muted); word-break: break-all; }
+  .lb-close { position: absolute; top: 18px; right: 18px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--sun); color: var(--night); display: grid; place-items: center; cursor: pointer; }
+  @media (max-width: 980px) { .radar-grid { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import { bridge } from '../lib/bridge';
+  import { store } from '../lib/store';
+  import { esc, icon, niceDate } from '../lib/format';
+  import { reducedMotion } from '../lib/motion';
+
+  const root = document.querySelector<HTMLElement>('#radar')!;
+  const lab = root.querySelector<HTMLElement>('.sar-lab')!;
+  const soil = root.querySelector<HTMLInputElement>('[data-soil]')!;
+  const pulses = root.querySelector<SVGGElement>('[data-pulses]')!;
+  const sprouts = root.querySelector<SVGGElement>('[data-sprouts]')!;
+  const cracks = root.querySelector<SVGPathElement>('.soil-cracks')!;
+  const clouds = root.querySelector<HTMLInputElement>('[data-clouds]')!;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function soilState() {
+    const v = Number(soil.value) / 100;
+    const db = -20 + v * 12;
+    const label = v < 0.2 ? 'Bone dry' : v < 0.4 ? 'Dry' : v < 0.6 ? 'Moist' : v < 0.8 ? 'Wet' : 'Soaked';
+    root.querySelector('[data-soil-label]')!.textContent = label;
+    root.querySelector('[data-db]')!.textContent = `${db < 0 ? '−' : ''}${Math.abs(db).toFixed(1)} dB`;
+    root.querySelector<HTMLElement>('[data-echo]')!.style.width = `${15 + v * 85}%`;
+    const r = Math.round(138 - v * 90), g = Math.round(90 - v * 50), b = Math.round(43 - v * 20);
+    lab.style.setProperty('--soil-top', `rgb(${r},${g},${b})`);
+    cracks.style.opacity = String(Math.max(0, 1 - v * 2));
+    sprouts.querySelectorAll('path').forEach((p) => {
+      (p as SVGPathElement).style.transform = `scaleY(${0.2 + v * 1.1})`;
+      (p as SVGPathElement).style.opacity = String(0.2 + v * 0.8);
+    });
+    return v;
+  }
+
+  function firePulse() {
+    const v = Number(soil.value) / 100;
+    const satX = 300;
+    const down = document.createElementNS(NS, 'path');
+    down.setAttribute('class', 'pulse-arc');
+    down.setAttribute('d', `M${satX - 26} 80 Q${satX} 92 ${satX + 26} 80`);
+    pulses.appendChild(down);
+    down.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(212px) scaleX(2.6)', opacity: 0.9 }], { duration: 1300, easing: 'ease-in', fill: 'forwards' }).onfinish = () => {
+      down.remove();
+      const up = document.createElementNS(NS, 'path');
+      up.setAttribute('class', 'echo-arc');
+      up.setAttribute('d', `M${satX - 60} 296 Q${satX} 280 ${satX + 60} 296`);
+      up.style.strokeWidth = String(1 + v * 5);
+      up.style.opacity = String(0.25 + v * 0.75);
+      pulses.appendChild(up);
+      up.animate([{ transform: 'translateY(0) scaleX(1)', opacity: 0.25 + v * 0.75 }, { transform: 'translateY(-212px) scaleX(.4)', opacity: 0 }], { duration: 1300, easing: 'ease-out', fill: 'forwards' }).onfinish = () => up.remove();
+    };
+  }
+
+  function cloudState() {
+    lab.classList.toggle('no-clouds', !clouds.checked);
+    root.querySelector('[data-sar-note]')!.textContent = clouds.checked
+      ? 'With storm clouds overhead, an optical camera sees only white. The radar pulse goes straight through.'
+      : 'Clear sky: both optical cameras and radar can see the ground. Radar still adds the soil-moisture signal.';
+  }
+
+  soil.addEventListener('input', soilState);
+  clouds.addEventListener('change', cloudState);
+  soilState();
+  cloudState();
+  let pulseTimer = 0;
+  new IntersectionObserver(([e]) => {
+    clearInterval(pulseTimer);
+    if (e.isIntersecting && !reducedMotion()) {
+      firePulse();
+      pulseTimer = window.setInterval(firePulse, 1900);
+    }
+  }, { threshold: 0.2 }).observe(lab);
+
+  const passes = root.querySelector<HTMLElement>('[data-passes]')!;
+  const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!;
+  root.querySelector('[data-lb-close]')!.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  let token = 0;
+
+  async function loadSar(id: string) {
+    const my = ++token;
+    const regions = await bridge.regions().catch(() => null);
+    const name = regions?.regions.find((r) => r.id === id)?.name ?? id;
+    root.querySelector('[data-sar-region]')!.textContent = name;
+    passes.innerHTML = '<div class="skeleton" style="height:140px"></div>'.repeat(3);
+    try {
+      const data = await bridge.sar(id);
+      if (my !== token) return;
+      root.querySelector<HTMLAnchorElement>('[data-asf]')!.href = data.searchUrl;
+      passes.innerHTML = data.passes.length ? data.passes.map((p) => `<button type="button" class="sar-pass" data-src="${esc(p.browse ?? '')}" data-cap="${esc(p.scene)}" data-tip="<b>${esc(p.platform)}</b><div class='t-row'><span>Time</span><span>${esc(p.time.replace('T', ' ').slice(0, 16))} UTC</span></div><div class='t-row'><span>Pass</span><span>${esc(p.direction)}</span></div><div class='t-row'><span>Mode</span><span>${esc(p.mode)} · ${esc(p.polarization)}</span></div><div class='t-row'><span>Track</span><span>${p.orbit}</span></div>">
+        ${p.browse ? `<img loading="lazy" src="${esc(p.browse)}" alt="Sentinel-1 radar quicklook, ${esc(niceDate(p.time))}">` : '<div style="aspect-ratio:1.25"></div>'}
+        <span class="pmeta"><b>${esc(niceDate(p.time))}</b><br>${esc(p.platform)} · ${esc(p.direction.toLowerCase())}</span>
+      </button>`).join('') : '<p class="card-sub">No passes found in the last 45 days.</p>';
+      passes.querySelectorAll<HTMLButtonElement>('.sar-pass').forEach((b) => b.addEventListener('click', () => {
+        if (!b.dataset.src) return;
+        root.querySelector<HTMLImageElement>('[data-lb-img]')!.src = b.dataset.src;
+        root.querySelector<HTMLImageElement>('[data-lb-img]')!.alt = `Sentinel-1 quicklook ${b.dataset.cap}`;
+        root.querySelector('[data-lb-cap]')!.textContent = b.dataset.cap ?? '';
+        dialog.showModal();
+      }));
+    } catch (err) {
+      if (my !== token) return;
+      passes.innerHTML = `<div class="error-box">${icon('info')}<div>${esc((err as Error).message)}</div></div>`;
+    }
+  }
+
+  store.subscribe((id) => loadSar(id));
+</script>

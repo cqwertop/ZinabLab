@@ -1,0 +1,274 @@
+---
+const face = `
+<svg viewBox="0 0 100 100" aria-hidden="true" class="gface">
+  <path class="mane" d="M50 4c8 0 10 6 16 7s12-2 15 4 0 10 4 15 10 8 8 15-8 8-8 14 4 12-2 16-12 0-16 4-6 12-17 12-12-8-17-12-12 0-16-4 2-10-2-16-10-7-8-14 6-10 8-15-1-11 4-15 9-3 15-4S42 4 50 4Z"/>
+  <ellipse class="face" cx="50" cy="48" rx="20" ry="25"/>
+  <path class="brow" d="M33 38c5-5 12-5 16-1M51 37c4-4 11-4 16 1"/>
+  <g class="eyes"><ellipse cx="41" cy="44" rx="4" ry="4.4"/><ellipse cx="59" cy="44" rx="4" ry="4.4"/></g>
+  <circle class="glint" cx="42.3" cy="42.8" r="1.2"/><circle class="glint" cx="60.3" cy="42.8" r="1.2"/>
+  <path class="muzzle" d="M40 54c0-4 4-6 10-6s10 2 10 6v10c0 5-4 8-10 8s-10-3-10-8Z"/>
+  <path class="nostril" d="M46 57h.01M54 57h.01"/>
+  <path class="mouth" d="M45 66c3 2 7 2 10 0"/>
+  <path class="heart" d="M38 84c4-4 8-4 12 0 4-4 8-4 12 0-3 6-7 9-12 12-5-3-9-6-12-12Z"/>
+</svg>`;
+---
+<button class="gelada-fab" type="button" data-gelada-fab aria-label="Open Gelada, the rain assistant" aria-expanded="false" aria-controls="gelada-panel">
+  <span class="fab-face" set:html={face} />
+  <span class="fab-bubble">Ask me about the rain</span>
+</button>
+
+<div class="gelada-panel" id="gelada-panel" role="dialog" aria-modal="false" aria-labelledby="gelada-name" data-gelada-panel hidden>
+  <header class="gp-head">
+    <span class="gp-avatar" set:html={face} />
+    <div>
+      <b id="gelada-name">Gelada</b>
+      <span class="gp-status" data-gp-mode>Field guide for Ethiopia's rain</span>
+    </div>
+    <button type="button" class="gp-close" data-gp-close aria-label="Close chat"><svg class="zi"><use href="#i-close" /></svg></button>
+  </header>
+  <div class="gp-log" data-gp-log aria-live="polite"></div>
+  <div class="gp-suggest" data-gp-suggest></div>
+  <form class="gp-form" data-gp-form>
+    <label class="sr-only" for="gp-input">Ask Gelada</label>
+    <textarea id="gp-input" rows="1" placeholder="Ask anything… e.g. Why is Tigray dry?" data-gp-input></textarea>
+    <button type="submit" class="gp-send" aria-label="Send"><svg class="zi"><use href="#i-send" /></svg></button>
+  </form>
+</div>
+
+<style is:global>
+  .gface .mane { fill: #8a5a2e; }
+  .gface .face { fill: #3a2418; }
+  .gface .brow { fill: none; stroke: #1c110b; stroke-width: 3; stroke-linecap: round; }
+  .gface .eyes ellipse { fill: #ffb020; transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
+  .gface .glint { fill: #fff; }
+  .gface .muzzle { fill: #5a3826; }
+  .gface .nostril { stroke: #1c110b; stroke-width: 3; stroke-linecap: round; }
+  .gface .mouth { fill: none; stroke: #1c110b; stroke-width: 2; stroke-linecap: round; }
+  .gface .heart { fill: #e5533d; }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+
+  .gelada-fab { position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); bottom: max(18px, env(safe-area-inset-bottom, 0px)); z-index: 950; display: flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; cursor: pointer; }
+  .fab-face { width: 74px; height: 74px; border-radius: 50%; background: var(--sun); display: grid; place-items: center; box-shadow: 5px 5px 0 var(--ember), 0 16px 40px #00000077; transition: transform .4s var(--ease-spring); animation: fabBob 3.6s ease-in-out infinite; order: 2; }
+  .fab-face svg { width: 64px; height: 64px; }
+  .gelada-fab:hover .fab-face { transform: rotate(-10deg) scale(1.08); }
+  @keyframes fabBob { 50% { translate: 0 -5px; } }
+  .fab-bubble { order: 1; padding: 10px 14px; border-radius: 16px 16px 4px 16px; background: var(--bone); color: var(--night); font-family: var(--display); font-weight: 700; font-size: .95rem; box-shadow: 0 10px 30px #00000055; transform-origin: right bottom; animation: bubbleIn .6s 2.5s var(--ease-spring) both; }
+  @keyframes bubbleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .gelada-fab[aria-expanded='true'] .fab-bubble { display: none; }
+
+  .gelada-panel { position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(max(18px, env(safe-area-inset-bottom, 0px)) + 92px); z-index: 960; width: min(430px, calc(100vw - 24px)); height: min(640px, calc(100svh - 150px)); display: flex; flex-direction: column; border-radius: 26px; background: #120f26f5; border: 1px solid var(--line); box-shadow: 0 30px 80px #000000aa; backdrop-filter: blur(16px); overflow: hidden; transform-origin: bottom right; animation: panelIn .45s var(--ease-spring); }
+  .gelada-panel[hidden] { display: none; }
+  @keyframes panelIn { from { transform: scale(.6) translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .gp-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: linear-gradient(120deg, #3a2418, #17142c); border-bottom: 1px solid var(--line); }
+  .gp-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--sun); display: grid; place-items: center; flex: none; }
+  .gp-avatar svg { width: 42px; height: 42px; }
+  .gp-head b { display: block; font-family: var(--display); font-size: 1.25rem; letter-spacing: -.02em; }
+  .gp-status { font-size: .8rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .gp-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--moss); box-shadow: 0 0 10px var(--moss); }
+  .gp-status i.off { background: var(--sun); box-shadow: 0 0 10px var(--sun); }
+  .gp-close { margin-left: auto; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+  .gp-close:hover { border-color: var(--sun); }
+  .gp-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+  .msg { max-width: 88%; padding: 11px 14px; border-radius: 18px; font-size: .96rem; line-height: 1.55; animation: msgIn .35s var(--ease-out); overflow-wrap: anywhere; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .msg.user { align-self: flex-end; background: var(--sun); color: var(--night); border-bottom-right-radius: 6px; font-weight: 600; }
+  .msg.bot { align-self: flex-start; background: var(--surface-2); border: 1px solid var(--line-soft); border-bottom-left-radius: 6px; }
+  .msg.bot p { margin: 0 0 .6em; }
+  .msg.bot p:last-child { margin: 0; }
+  .msg.bot ul { margin: .3em 0 .6em; padding-left: 1.2em; }
+  .msg.bot li { margin: .15em 0; }
+  .msg.bot strong { color: var(--sun); }
+  .msg .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .msg .meta span { font-family: var(--mono); font-size: .68rem; padding: 2px 8px; border-radius: 999px; background: #ffffff10; color: var(--dim); }
+  .msg .focus-btn { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--sun); background: transparent; color: var(--sun); font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .msg .focus-btn:hover { background: var(--sun); color: var(--night); }
+  .msg .note { margin-top: 6px; font-size: .76rem; color: var(--dim); }
+  .typing { align-self: flex-start; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 18px; background: var(--surface-2); color: var(--muted); font-size: .88rem; }
+  .gp-suggest { display: flex; gap: 6px; overflow-x: auto; padding: 0 16px 10px; scrollbar-width: none; }
+  .gp-suggest::-webkit-scrollbar { display: none; }
+  .gp-suggest .chip { white-space: nowrap; font-size: .82rem; padding: 6px 12px; }
+  .gp-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); background: #0c0a1c; }
+  .gp-form textarea { flex: 1; resize: none; max-height: 120px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .98rem; line-height: 1.4; }
+  .gp-form textarea:focus { outline: none; border-color: var(--sun); }
+  .gp-send { width: 48px; height: 48px; flex: none; align-self: flex-end; border-radius: 50%; border: 0; background: var(--sun); color: var(--night); display: grid; place-items: center; cursor: pointer; transition: transform .3s var(--ease-spring); }
+  .gp-send:hover { transform: rotate(-12deg) scale(1.08); }
+  .gp-send:disabled { opacity: .5; cursor: wait; }
+  @media (max-width: 560px) {
+    .fab-bubble { display: none; }
+    .fab-face { width: 62px; height: 62px; }
+    .fab-face svg { width: 54px; height: 54px; }
+    .gelada-panel { right: 12px; left: 12px; width: auto; bottom: calc(max(12px, env(safe-area-inset-bottom, 0px)) + 80px); height: calc(100svh - 170px); }
+  }
+</style>
+
+<script>
+  import { bridge, type ChatTurn } from '../lib/bridge';
+  import { store } from '../lib/store';
+  import { esc } from '../lib/format';
+
+  const fab = document.querySelector<HTMLButtonElement>('[data-gelada-fab]')!;
+  const panel = document.querySelector<HTMLElement>('[data-gelada-panel]')!;
+  const log = panel.querySelector<HTMLElement>('[data-gp-log]')!;
+  const form = panel.querySelector<HTMLFormElement>('[data-gp-form]')!;
+  const input = panel.querySelector<HTMLTextAreaElement>('[data-gp-input]')!;
+  const suggest = panel.querySelector<HTMLElement>('[data-gp-suggest]')!;
+  const send = panel.querySelector<HTMLButtonElement>('.gp-send')!;
+  const KEY = 'zinab-gelada-chat';
+  let history: ChatTurn[] = [];
+  let busy = false;
+
+  const TOOL_LABEL: Record<string, string> = { dry_regions: 'NASA POWER ranking', region_report: 'Region report', climate_drivers: 'NOAA ocean indices', news_headlines: 'News scan', model_skill: 'Model card', sar_passes: 'ASF Sentinel-1' };
+
+  function md(text: string) {
+    const lines = esc(text).split('\n');
+    let html = '';
+    let inList = false;
+    for (const raw of lines) {
+      const line = raw.trim();
+      const item = line.match(/^[-*•]\s+(.*)/);
+      if (item) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        html += `<li>${inline(item[1])}</li>`;
+        continue;
+      }
+      if (inList) { html += '</ul>'; inList = false; }
+      if (line) html += `<p>${inline(line)}</p>`;
+    }
+    if (inList) html += '</ul>';
+    return html;
+  }
+
+  function inline(s: string) {
+    return s
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*(?!\s)(.+?)\*/g, '$1<em>$2</em>')
+      .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+      .replace(/(^|\s)(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener noreferrer">link</a>');
+  }
+
+  function addMsg(role: 'user' | 'assistant', content: string, extra?: { tools?: string[]; focus?: string | null; note?: string }) {
+    const el = document.createElement('div');
+    el.className = `msg ${role === 'user' ? 'user' : 'bot'}`;
+    el.innerHTML = role === 'user' ? esc(content) : md(content);
+    if (role === 'assistant' && extra) {
+      if (extra.tools?.length) el.insertAdjacentHTML('beforeend', `<div class="meta">${[...new Set(extra.tools)].map((t) => `<span>${esc(TOOL_LABEL[t] ?? t)}</span>`).join('')}</div>`);
+      if (extra.focus) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'focus-btn';
+        b.innerHTML = '<svg class="zi"><use href="#i-map"/></svg>Show this region';
+        b.addEventListener('click', () => {
+          store.select(extra.focus!, 'gelada');
+          document.querySelector('#region')?.scrollIntoView({ behavior: 'smooth' });
+        });
+        el.appendChild(b);
+      }
+      if (extra.note) el.insertAdjacentHTML('beforeend', `<div class="note">${esc(extra.note)}</div>`);
+    }
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function save() {
+    try { sessionStorage.setItem(KEY, JSON.stringify(history.slice(-20))); } catch {}
+  }
+
+  function restore() {
+    try {
+      const raw = sessionStorage.getItem(KEY);
+      if (raw) history = JSON.parse(raw);
+    } catch { history = []; }
+    log.innerHTML = '';
+    if (!history.length) {
+      addMsg('assistant', "Selam! I'm **Gelada**. I live in the Simien highlands and I eat almost nothing but grass, so I watch the rain very closely.\n\nAsk me where it's dry, why a region is missing rain, what the next months look like, or what the radar satellites see.");
+    } else {
+      history.forEach((h) => addMsg(h.role, h.content));
+    }
+  }
+
+  async function ask(question: string) {
+    const q = question.trim();
+    if (!q || busy) return;
+    busy = true;
+    send.disabled = true;
+    history.push({ role: 'user', content: q });
+    addMsg('user', q);
+    input.value = '';
+    input.style.height = 'auto';
+    const typing = document.createElement('div');
+    typing.className = 'typing';
+    typing.innerHTML = '<span class="drip-loader"><i></i><i></i><i></i></span><span>Gelada is reading the sky…</span>';
+    log.appendChild(typing);
+    log.scrollTop = log.scrollHeight;
+    const phrases = ['Checking NASA POWER rainfall…', 'Looking at the oceans…', 'Running the forecast…', 'Scanning the news…', 'Writing it up…'];
+    let k = 0;
+    const timer = setInterval(() => { typing.lastElementChild!.textContent = phrases[Math.min(k++, phrases.length - 1)]; }, 2200);
+    try {
+      const res = await bridge.chat(history);
+      history.push({ role: 'assistant', content: res.reply });
+      typing.remove();
+      addMsg('assistant', res.reply, { tools: res.tools, focus: res.focusRegion, note: res.note });
+      if (res.focusRegion) store.select(res.focusRegion, 'gelada');
+      setMode(res.mode);
+    } catch (err) {
+      typing.remove();
+      history.pop();
+      addMsg('assistant', `I couldn't reach the rain server. ${(err as Error).message}`);
+    } finally {
+      clearInterval(timer);
+      busy = false;
+      send.disabled = false;
+      save();
+      input.focus();
+    }
+  }
+
+  function setMode(mode: string) {
+    panel.querySelector('[data-gp-mode]')!.innerHTML = mode === 'claude' ? '<i></i>Live · powered by Claude + Zinab data' : '<i class="off"></i>Offline mode · answering from Zinab data';
+  }
+
+  function open() {
+    panel.hidden = false;
+    fab.setAttribute('aria-expanded', 'true');
+    if (!log.childElementCount) restore();
+    setTimeout(() => input.focus(), 50);
+  }
+
+  function close() {
+    panel.hidden = true;
+    fab.setAttribute('aria-expanded', 'false');
+    fab.focus();
+  }
+
+  fab.addEventListener('click', () => (panel.hidden ? open() : close()));
+  panel.querySelector('[data-gp-close]')!.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) close(); });
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as Element).closest?.('[data-open-gelada]');
+    if (trigger) {
+      e.preventDefault();
+      open();
+    }
+  });
+  window.addEventListener('zinab:gelada', (e) => {
+    open();
+    const q = (e as CustomEvent).detail?.question;
+    if (q) ask(q);
+  });
+  form.addEventListener('submit', (e) => { e.preventDefault(); ask(input.value); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(input.value); }
+  });
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
+  });
+
+  bridge.suggestions().then((s) => {
+    setMode(s.mode);
+    suggest.innerHTML = s.suggestions.map((q) => `<button type="button" class="chip">${esc(q)}</button>`).join('');
+    suggest.querySelectorAll<HTMLButtonElement>('.chip').forEach((b) => b.addEventListener('click', () => ask(b.textContent ?? '')));
+  }).catch(() => {
+    panel.querySelector('[data-gp-mode]')!.innerHTML = '<i class="off"></i>Server offline';
+  });
+</script>

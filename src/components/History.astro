@@ -1,0 +1,101 @@
+<section class="section history" id="history" aria-labelledby="hist-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal><span class="geez">፯</span>A decade of rain</span>
+      <h2 class="headline" id="hist-title" data-reveal style="--d:.08s">Droughts leave <span class="ember-text">fingerprints.</span></h2>
+      <p class="lede" data-reveal style="--d:.16s">Ten years of CHIRPS satellite rainfall for the whole country. Each tile is one rainy season compared with its normal. Look for the El Niño drought of 2015 and the long La Niña drought of 2020 to 2023.</p>
+    </div>
+
+    <div class="card season-board" data-reveal>
+      <div class="sb-grid" data-board><div class="skeleton" style="height:220px;grid-column:1/-1"></div></div>
+      <div class="legend-row" style="margin-top:16px"><span style="gap:3px"><i style="background:#c2361a;width:16px;height:10px;border-radius:2px"></i><i style="background:#f2552e;width:16px;height:10px;border-radius:2px"></i><i style="background:#ff8a5c;width:16px;height:10px;border-radius:2px"></i><i style="background:#ffb38f;width:16px;height:10px;border-radius:2px"></i><i style="background:#76718a;width:16px;height:10px;border-radius:2px"></i><i style="background:#9ad8ff;width:16px;height:10px;border-radius:2px"></i><i style="background:#5cbcff;width:16px;height:10px;border-radius:2px"></i><i style="background:#2f95f0;width:16px;height:10px;border-radius:2px"></i></span><span>season total as % of its 2015–2024 normal</span></div>
+    </div>
+
+    <div class="card timeline" data-reveal>
+      <span class="label"><svg class="zi"><use href="#i-chart" /></svg> Month by month</span>
+      <h3 class="card-title" style="margin:6px 0 4px">National rain anomaly, millimetres</h3>
+      <p class="card-sub">Bars above the line: wetter than normal for that month. Below: drier.</p>
+      <div data-timeline class="tl-wrap"><div class="skeleton" style="height:260px"></div></div>
+      <details class="table-toggle"><summary>Show seasons as a table</summary><div class="table-scroll" data-hist-table></div></details>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .season-board { margin-bottom: 18px; overflow-x: auto; }
+  .sb-grid { display: grid; grid-template-columns: 110px repeat(10, minmax(54px, 1fr)); gap: 6px; min-width: 700px; }
+  .sb-grid .sb-h { font-family: var(--mono); font-size: .78rem; color: var(--dim); text-align: center; align-self: end; padding-bottom: 4px; }
+  .sb-grid .sb-s { font-family: var(--display); font-weight: 800; font-size: 1.05rem; align-self: center; line-height: 1.1; }
+  .sb-grid .sb-s small { display: block; font-family: var(--body); font-weight: 400; color: var(--dim); font-size: .76rem; }
+  .sb-cell { position: relative; height: 66px; border-radius: 12px; display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 1.05rem; color: var(--night); transform: scale(.6); opacity: 0; transition: transform .7s var(--ease-spring), opacity .5s; }
+  .season-board.is-in .sb-cell { transform: scale(1); opacity: 1; }
+  .sb-cell.light { color: var(--bone); }
+  .sb-cell.mark::after { content: ''; position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--night); border: 3px solid var(--sun); }
+  .tl-wrap { margin-top: 12px; overflow-x: auto; }
+  .tl-wrap .chart { min-width: 760px; }
+  .tl-wrap .ev { font-family: var(--display); font-size: 12px; font-weight: 700; fill: var(--sun); }
+  .tl-wrap .evl { stroke: var(--sun); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
+</style>
+
+<script>
+  import { bridge } from '../lib/bridge';
+  import { esc, icon, MONTHS_LONG, pctColor, signed } from '../lib/format';
+
+  const root = document.querySelector<HTMLElement>('#history')!;
+  const SEASONS = [
+    { key: 'Belg', months: 'Feb–May · short rains' },
+    { key: 'Kiremt', months: 'Jun–Sep · main rains' },
+    { key: 'Bega', months: 'Oct–Jan · dry season' },
+  ];
+  const MARKS: Record<string, string> = { '2015-Kiremt': 'El Niño drought', '2015-Belg': 'El Niño onset', '2022-Belg': 'La Niña drought', '2021-Bega': 'La Niña', '2023-Bega': 'El Niño + IOD floods' };
+  const EVENTS = [
+    { month: '2015-07', text: '2015 El Niño drought' },
+    { month: '2020-10', text: 'La Niña drought begins' },
+    { month: '2022-04', text: 'Worst Horn drought in 40 years' },
+    { month: '2023-11', text: 'Deyr floods' },
+  ];
+
+  let started = false;
+  new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting || started) return;
+    started = true;
+    bridge.national().then((n) => {
+      const years = [...new Set(n.seasonal.map((s) => s.year))].sort();
+      const board = root.querySelector<HTMLElement>('[data-board]')!;
+      board.innerHTML = `<span></span>${years.map((y) => `<span class="sb-h">${y}</span>`).join('')}` + SEASONS.map((s, si) => `<span class="sb-s">${s.key}<small>${s.months}</small></span>${years.map((y, yi) => {
+        const rec = n.seasonal.find((x) => x.year === y && x.season === s.key);
+        if (!rec) return '<span></span>';
+        const c = pctColor(rec.pct);
+        const light = rec.pct > 105 || rec.pct < 60 || (rec.pct >= 95 && rec.pct <= 105);
+        const mark = MARKS[`${y}-${s.key}`];
+        return `<span class="sb-cell ${light ? 'light' : ''} ${mark ? 'mark' : ''}" style="background:${c};transition-delay:${(yi * 3 + si) * 0.03}s" data-tip="<b>${s.key} ${y}</b>${mark ? `<br><span style='color:var(--sun)'>${mark}</span>` : ''}<div class='t-row'><span>Rain</span><span>${rec.rain} mm</span></div><div class='t-row'><span>Normal</span><span>${rec.normal} mm</span></div><div class='t-row'><span>Share</span><span>${rec.pct}%</span></div>">${rec.pct.toFixed(0)}</span>`;
+      }).join('')}`).join('');
+      new IntersectionObserver(([en], o) => { if (en.isIntersecting) { board.closest('.season-board')!.classList.add('is-in'); o.disconnect(); } }, { threshold: 0.3 }).observe(board);
+
+      const m = n.monthly;
+      const W = 1000, H = 280, L = 48, R = 16, T = 36, B = 30;
+      const max = Math.max(...m.map((x) => Math.abs(x.anomaly)), 10);
+      const bw = (W - L - R) / m.length;
+      const y = (v: number) => T + (1 - (v + max) / (2 * max)) * (H - T - B);
+      const svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly national rainfall anomaly 2015 to 2024">
+        ${[-max, -max / 2, 0, max / 2, max].map((v) => `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" ${v === 0 ? 'style="stroke:var(--muted)"' : ''}/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v > 0 ? '+' : ''}${v.toFixed(0)}</text>`).join('')}
+        ${m.map((x, i) => {
+          const top = Math.min(y(0), y(x.anomaly));
+          const h = Math.abs(y(x.anomaly) - y(0));
+          const [yy, mm] = x.month.split('-').map(Number);
+          return `<rect x="${(L + i * bw + 0.8).toFixed(1)}" y="${top.toFixed(1)}" width="${Math.max(1, bw - 1.6).toFixed(1)}" height="${Math.max(1, h).toFixed(1)}" rx="1.5" fill="${x.anomaly < 0 ? 'var(--dry-2)' : 'var(--wet-2)'}" data-tip="<b>${MONTHS_LONG[mm - 1]} ${yy}</b><div class='t-row'><span>Rain</span><span>${x.rain} mm</span></div><div class='t-row'><span>Normal</span><span>${x.normal.toFixed(0)} mm</span></div><div class='t-row'><span>Anomaly</span><span>${signed(x.anomaly, 0)} mm</span></div>"/>${mm === 1 ? `<text x="${L + i * bw}" y="${H - 8}">${yy}</text>` : ''}`;
+        }).join('')}
+        ${EVENTS.map((ev) => {
+          const i = m.findIndex((x) => x.month === ev.month);
+          if (i < 0) return '';
+          const xx = L + i * bw + bw / 2;
+          return `<line class="evl" x1="${xx}" x2="${xx}" y1="${T - 12}" y2="${H - B}"/><text class="ev" x="${xx + 4}" y="${T - 16}">${esc(ev.text)}</text>`;
+        }).join('')}
+      </svg>`;
+      root.querySelector('[data-timeline]')!.innerHTML = svg;
+      root.querySelector('[data-hist-table]')!.innerHTML = `<table class="data-table"><thead><tr><th>Year</th><th>Season</th><th>Rain (mm)</th><th>Normal (mm)</th><th>% of normal</th></tr></thead><tbody>${n.seasonal.map((s) => `<tr><td>${s.year}</td><td>${s.season}</td><td class="num">${s.rain}</td><td class="num">${s.normal}</td><td class="num">${s.pct}</td></tr>`).join('')}</tbody></table>`;
+    }).catch((err) => {
+      root.querySelector('[data-board]')!.innerHTML = `<div class="error-box" style="grid-column:1/-1">${icon('info')}<div>${esc(err.message)}</div></div>`;
+    });
+  }, { rootMargin: '400px' }).observe(root);
+</script>

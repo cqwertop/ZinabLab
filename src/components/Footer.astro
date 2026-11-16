@@ -1,0 +1,70 @@
+---
+const sources = [
+  { name: 'NASA POWER', what: 'Daily and monthly rain, temperature, soil wetness and climatology', url: 'https://power.larc.nasa.gov/' },
+  { name: 'CHIRPS v3.0', what: 'Satellite + station rainfall, 2015–2024, UCSB Climate Hazards Center', url: 'https://www.chc.ucsb.edu/data/chirps3' },
+  { name: 'NASA GIBS', what: 'GPM IMERG rain, SMAP soil moisture, MODIS NDVI, VIIRS imagery', url: 'https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api' },
+  { name: 'ASF DAAC · Sentinel-1', what: 'Synthetic aperture radar scenes (Copernicus / ESA)', url: 'https://search.asf.alaska.edu/' },
+  { name: 'NOAA PSL', what: 'Oceanic Niño Index and Dipole Mode Index', url: 'https://psl.noaa.gov/data/climateindices/' },
+  { name: 'Open-Meteo', what: '16-day rain, temperature and evaporation forecast', url: 'https://open-meteo.com/' },
+  { name: 'GDELT · Google News', what: 'Recent headlines about rain, drought and floods', url: 'https://www.gdeltproject.org/' },
+  { name: 'geoBoundaries', what: 'Ethiopia regional (ADM1) boundaries', url: 'https://www.geoboundaries.org/' },
+  { name: 'Claude by Anthropic', what: 'Language model behind Gelada, calling Zinab data tools', url: 'https://www.anthropic.com/' },
+];
+---
+<footer class="footer">
+  <svg class="foot-ridge" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 160V90l90-30 70 16 110-50 90 28 60-14 120 40 100-36 90 20 120-44 80 30 110-10 90 26 110-34 100 30 100-12v118Z" />
+  </svg>
+  <div class="trot" aria-hidden="true"><svg viewBox="0 0 64 40"><use href="#w-wolf" /></svg></div>
+  <div class="foot-body">
+    <div class="wrap">
+      <div class="foot-top">
+        <div>
+          <p class="foot-geez" aria-hidden="true">ዝናብ</p>
+          <h2 class="foot-title">Keep watching the sky.</h2>
+          <p class="foot-sub">Zinab Lab is an open research prototype built for the NASA Space Apps Challenge, <b>Dancing with the SARs</b>. It is not an official forecast or warning service.</p>
+          <div class="hero-cta">
+            <a class="btn btn-sun" href="#top"><svg class="zi" style="transform:rotate(-90deg)"><use href="#i-arrow" /></svg>Back to the sky</a>
+            <button class="btn btn-ghost" type="button" data-open-gelada><svg class="zi"><use href="#i-ask" /></svg>Ask Gelada</button>
+          </div>
+        </div>
+        <div>
+          <h3 class="src-title"><svg class="zi"><use href="#i-book" /></svg> Where the data comes from</h3>
+          <ul class="sources">
+            {sources.map((s) => (
+              <li><a href={s.url} target="_blank" rel="noopener noreferrer"><b>{s.name}</b><svg class="zi"><use href="#i-out" /></svg></a><span>{s.what}</span></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span><b>Zinab Lab</b> · NASA Space Apps Challenge 2026</span>
+        <span>Map tiles © OpenStreetMap contributors © CARTO · Imagery NASA EOSDIS GIBS</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style is:global>
+  .footer { position: relative; margin-top: 60px; color: var(--ink); }
+  .foot-ridge { display: block; width: 100%; height: 120px; color: #070614; margin-bottom: -2px; }
+  .foot-ridge path { fill: #070614; }
+  .trot { position: absolute; top: 18px; left: 0; width: 70px; height: 44px; color: #070614; animation: trot 38s linear infinite; }
+  .trot svg { width: 100%; height: 100%; animation: step .45s ease-in-out infinite alternate; }
+  @keyframes trot { from { transform: translateX(-80px); } to { transform: translateX(calc(100vw + 80px)); } }
+  @keyframes step { to { transform: translateY(-3px) rotate(-1.5deg); } }
+  .foot-body { background: #070614; padding: 40px 0 30px; }
+  .foot-top { display: grid; grid-template-columns: 1fr 1.1fr; gap: 50px; }
+  .foot-geez { font-family: var(--geez); font-weight: 900; font-size: clamp(4rem, 10vw, 8rem); line-height: 1; margin: 0; color: transparent; -webkit-text-stroke: 2px var(--sun); }
+  .foot-title { font-size: clamp(2rem, 4vw, 3.4rem); margin: 10px 0 12px; }
+  .foot-sub { color: var(--muted); max-width: 520px; }
+  .src-title { font-size: 1.2rem; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; color: var(--sun); }
+  .sources { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; }
+  .sources li { display: grid; gap: 2px; }
+  .sources a { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); text-decoration: none; font-family: var(--display); }
+  .sources a:hover { color: var(--rain); }
+  .sources a .zi { width: .9em; height: .9em; opacity: .6; }
+  .sources span { font-size: .85rem; color: var(--dim); line-height: 1.4; }
+  .foot-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--line-soft); font-size: .82rem; color: var(--dim); }
+  @media (max-width: 860px) { .foot-top { grid-template-columns: 1fr; } .sources { grid-template-columns: 1fr; } }
+</style>

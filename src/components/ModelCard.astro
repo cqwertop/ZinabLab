@@ -1,0 +1,163 @@
+<section class="section model" id="model" aria-labelledby="model-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal><span class="geez">፮</span>Inside the forecast AI</span>
+      <h2 class="headline" id="model-title" data-reveal style="--d:.08s">A model that <em>reads the oceans.</em></h2>
+      <p class="lede" data-reveal style="--d:.16s">Ethiopia's rainy seasons rise and fall with the temperature of two oceans far away. Our Python model learned those links from 45 years of NASA rainfall for every region, then we tested it on years it had never seen, and against an independent satellite record.</p>
+    </div>
+
+    <div class="card pipeline" data-reveal="scale">
+      <svg viewBox="0 0 1100 260" class="pipe-svg" role="img" aria-label="How the forecast works: data sources feed features, three models make probabilities">
+        <defs>
+          <marker id="pipe-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#ffb020" /></marker>
+        </defs>
+        <g class="pnode" transform="translate(20 20)"><rect width="200" height="56" rx="16" /><text x="18" y="25" class="pt">NASA POWER</text><text x="18" y="44" class="ps">monthly rain 1981–2025</text></g>
+        <g class="pnode" transform="translate(20 102)"><rect width="200" height="56" rx="16" /><text x="18" y="25" class="pt">NOAA ONI</text><text x="18" y="44" class="ps">Pacific: El Niño / La Niña</text></g>
+        <g class="pnode" transform="translate(20 184)"><rect width="200" height="56" rx="16" /><text x="18" y="25" class="pt">NOAA DMI</text><text x="18" y="44" class="ps">Indian Ocean Dipole</text></g>
+        <g class="pnode hot" transform="translate(330 70)"><rect width="220" height="120" rx="20" /><text x="20" y="34" class="pt">11 predictors</text><text x="20" y="58" class="ps">recent rain anomaly,</text><text x="20" y="78" class="ps">persistence, ocean ×</text><text x="20" y="98" class="ps">season × region links</text></g>
+        <g class="pnode hot" transform="translate(640 20)"><rect width="200" height="56" rx="16" /><text x="18" y="25" class="pt">Ridge model · +1</text><text x="18" y="44" class="ps">next month</text></g>
+        <g class="pnode hot" transform="translate(640 102)"><rect width="200" height="56" rx="16" /><text x="18" y="25" class="pt">Ridge model · +2</text><text x="18" y="44" class="ps">two months out</text></g>
+        <g class="pnode hot" transform="translate(640 184)"><rect width="200" height="56" rx="16" /><text x="18" y="25" class="pt">Ridge model · +3</text><text x="18" y="44" class="ps">three months out</text></g>
+        <g class="pnode out" transform="translate(920 70)"><rect width="160" height="120" rx="20" /><text x="18" y="38" class="pt">Odds</text><text x="18" y="62" class="ps">drier / normal /</text><text x="18" y="82" class="ps">wetter, plus the</text><text x="18" y="102" class="ps">drivers behind it</text></g>
+        <path class="pflow" d="M220 48 C280 48 280 110 330 110" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M220 130 H330" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M220 212 C280 212 280 150 330 150" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M550 110 C600 110 590 48 640 48" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M550 130 H640" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M550 150 C600 150 590 212 640 212" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M840 48 C890 48 880 110 920 110" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M840 130 H920" marker-end="url(#pipe-arrow)" />
+        <path class="pflow" d="M840 212 C890 212 880 150 920 150" marker-end="url(#pipe-arrow)" />
+      </svg>
+    </div>
+
+    <div class="model-grid">
+      <article class="card" data-reveal>
+        <span class="label"><svg class="zi"><use href="#i-target" /></svg> Tested on unseen years</span>
+        <h3 class="card-title" style="margin:6px 0 4px">How often it picks the right odds</h3>
+        <p class="card-sub">Share of forecasts where the most likely category (drier, normal, wetter) was what actually happened. Guessing gets 33%.</p>
+        <div data-skill-chart class="skill-chart"><div class="skeleton" style="height:220px"></div></div>
+        <div class="skill-tiles" data-skill-tiles></div>
+      </article>
+      <article class="card" data-reveal style="--d:.1s">
+        <span class="label"><svg class="zi"><use href="#i-wave" /></svg> What it learned</span>
+        <h3 class="card-title" style="margin:6px 0 4px">Driver weights, next-month model</h3>
+        <p class="card-sub">Bars to the right push rain up, bars to the left push it down (standardised). Look for El Niño drying the northern Kiremt and the Indian Ocean wetting the southern autumn rains: physics the model found on its own.</p>
+        <div class="lead-tabs" role="radiogroup" aria-label="Forecast lead">
+          <button class="chip" aria-pressed="true" data-lead="1">+1 month</button>
+          <button class="chip" aria-pressed="false" data-lead="2">+2</button>
+          <button class="chip" aria-pressed="false" data-lead="3">+3</button>
+        </div>
+        <div data-weights class="weights"></div>
+      </article>
+    </div>
+
+    <div class="card honest" data-reveal>
+      <svg class="zi"><use href="#i-info" /></svg>
+      <div>
+        <h3 class="card-title">Straight talk about limits</h3>
+        <ul>
+          <li><b>Modest but real skill.</b> Monthly rain is noisy. The model beats climatology most clearly in strong El Niño and La Niña years, and fades with lead time.</li>
+          <li><b>One forecast per region.</b> Large regions like Oromia and Somali contain very different climates; we average several sample points to soften this.</li>
+          <li><b>Dry-season months</b> are left at climatology, because a few millimetres either way is not a meaningful signal.</li>
+          <li><b>Not an official warning.</b> Use the Ethiopian Meteorology Institute, ICPAC and FEWS NET for decisions; use Zinab to explore and understand.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .pipeline { padding: 18px; margin-bottom: 18px; overflow-x: auto; }
+  .pipe-svg { width: 100%; min-width: 760px; height: auto; display: block; }
+  .pnode rect { fill: var(--surface-3); stroke: var(--line); }
+  .pnode.hot rect { fill: #3a2a12; stroke: #ffb02066; }
+  .pnode.out rect { fill: #0f3150; stroke: #4cc3ff88; }
+  .pnode .pt { font-family: var(--display); font-weight: 800; font-size: 17px; fill: var(--ink); }
+  .pnode .ps { font-family: var(--body); font-size: 13px; fill: var(--muted); }
+  .pflow { fill: none; stroke: #ffb020; stroke-width: 2; stroke-dasharray: 6 8; animation: flow 1.2s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -28; } }
+  .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .skill-chart { margin: 18px 0 10px; }
+  .skill-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .skill-tiles div { padding: 12px; border-radius: 14px; background: #0c0a1c66; border: 1px solid var(--line-soft); }
+  .skill-tiles b { display: block; font-family: var(--display); font-size: 1.6rem; letter-spacing: -.03em; }
+  .skill-tiles span { font-size: .8rem; color: var(--dim); }
+  .lead-tabs { display: flex; gap: 6px; margin: 14px 0 8px; }
+  .weights { display: grid; gap: 7px; margin-top: 8px; }
+  .wrow { display: grid; grid-template-columns: minmax(150px, 1.1fr) 1fr; gap: 12px; align-items: center; font-size: .9rem; }
+  .wrow .wtrack { position: relative; height: 18px; }
+  .wrow .wtrack::before { content: ''; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; background: var(--bone); opacity: .4; }
+  .wrow .wbar { position: absolute; top: 2px; height: 14px; border-radius: 4px; transition: width 1s var(--ease-out); width: 0; }
+  .honest { display: flex; gap: 18px; margin-top: 18px; background: linear-gradient(140deg, #1a2a3a, var(--surface) 70%); }
+  .honest > .zi { width: 34px; height: 34px; color: var(--rain); flex: none; }
+  .honest ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); display: grid; gap: 6px; }
+  .honest b { color: var(--ink); }
+  @media (max-width: 980px) { .model-grid { grid-template-columns: 1fr; } .wrow { grid-template-columns: 1fr; gap: 4px; } }
+</style>
+
+<script>
+  import { bridge, type Skill } from '../lib/bridge';
+  import { esc, icon, signed } from '../lib/format';
+
+  const root = document.querySelector<HTMLElement>('#model')!;
+  let skill: Skill | null = null;
+
+  function skillChart(s: Skill) {
+    const W = 520, H = 230, L = 44, R = 16, T = 18, B = 40;
+    const y = (v: number) => T + (1 - v / 0.6) * (H - T - B);
+    const bw = (W - L - R) / s.leads.length;
+    const chance = y(1 / 3);
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Hit rate by lead time">
+      ${[0, 0.2, 0.4, 0.6].map((v) => `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${(v * 100).toFixed(0)}%</text>`).join('')}
+      ${s.leads.map((l, i) => {
+        const x = L + i * bw + bw * 0.22;
+        const w = bw * 0.56;
+        const top = y(l.hitRate);
+        return `<g data-tip="<b>${l.lead} month${l.lead > 1 ? 's' : ''} ahead</b><div class='t-row'><span>Right category</span><span>${(l.hitRate * 100).toFixed(1)}%</span></div><div class='t-row'><span>Correlation</span><span>${l.correlation.toFixed(2)}</span></div><div class='t-row'><span>Skill vs climatology (RPSS)</span><span>${signed(l.rpss, 3)}</span></div><div class='t-row'><span>Correlation with CHIRPS</span><span>${l.chirpsCorrelation?.toFixed(2) ?? '—'}</span></div><div class='t-row'><span>Test forecasts</span><span>${l.samples}</span></div>">
+          <rect x="${x}" y="${T}" width="${w}" height="${H - T - B}" fill="transparent"/>
+          <rect x="${x}" y="${top}" width="${w}" height="${y(0) - top}" rx="6" fill="url(#g-rain)"/>
+          <text x="${x + w / 2}" y="${top - 8}" text-anchor="middle" class="lab" fill="var(--ink)">${(l.hitRate * 100).toFixed(0)}%</text>
+          <text x="${x + w / 2}" y="${H - 16}" text-anchor="middle">+${l.lead} month${l.lead > 1 ? 's' : ''}</text>
+        </g>`;
+      }).join('')}
+      <line x1="${L}" x2="${W - R}" y1="${chance}" y2="${chance}" stroke="var(--ember)" stroke-width="2" stroke-dasharray="6 5"/>
+      <text x="${W - R}" y="${chance - 6}" text-anchor="end" style="fill:var(--ember)">random guess 33%</text>
+    </svg>`;
+  }
+
+  function weights(lead: string) {
+    if (!skill) return;
+    const list = skill.coefficients[lead] ?? [];
+    const max = Math.max(...list.map((w) => Math.abs(w.weight)), 0.01);
+    const el = root.querySelector<HTMLElement>('[data-weights]')!;
+    el.innerHTML = list.map((w) => {
+      const pct = (Math.abs(w.weight) / max) * 50;
+      return `<div class="wrow" data-tip="<b>${esc(w.feature)}</b><br>weight ${signed(w.weight, 3)}"><span>${esc(w.feature)}</span><span class="wtrack"><span class="wbar" data-w="${pct}" style="${w.weight < 0 ? 'right:50%;background:var(--dry-2)' : 'left:50%;background:var(--wet-2)'}"></span></span></div>`;
+    }).join('');
+    requestAnimationFrame(() => el.querySelectorAll<HTMLElement>('.wbar').forEach((b) => (b.style.width = `${b.dataset.w}%`)));
+  }
+
+  root.querySelectorAll<HTMLButtonElement>('[data-lead]').forEach((b) => b.addEventListener('click', () => {
+    root.querySelectorAll('[data-lead]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    weights(b.dataset.lead!);
+  }));
+
+  let started = false;
+  new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting || started) return;
+    started = true;
+    bridge.model().then((s) => {
+      skill = s;
+      root.querySelector('[data-skill-chart]')!.innerHTML = skillChart(s);
+      const l1 = s.leads[0];
+      root.querySelector('[data-skill-tiles]')!.innerHTML = `
+        <div><b>${s.leads.reduce((a, l) => a + l.samples, 0).toLocaleString()}</b><span>test forecasts</span></div>
+        <div><b>${signed(l1.rpss, 2)}</b><span>skill score vs climatology, +1 month</span></div>
+        <div><b>${l1.strongEnsoCorrelation?.toFixed(2) ?? '—'}</b><span>correlation in strong El Niño / La Niña years</span></div>`;
+      weights('1');
+    }).catch((err) => {
+      root.querySelector('[data-skill-chart]')!.innerHTML = `<div class="error-box">${icon('info')}<div>${esc(err.message)}</div></div>`;
+    });
+  }, { rootMargin: '300px' }).observe(root);
+</script>

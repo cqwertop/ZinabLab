@@ -1,0 +1,238 @@
+<section class="section pulse" id="pulse" aria-labelledby="pulse-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal><span class="geez">፩</span>The pulse · right now</span>
+      <h2 class="headline" id="pulse-title" data-reveal style="--d:.08s">How wet is <em>Ethiopia</em> today?</h2>
+      <p class="lede" data-reveal style="--d:.16s" data-plain>Checking the last 60 days of satellite rainfall for every region…</p>
+    </div>
+
+    <div class="pulse-grid">
+      <article class="card tile tile-hero" data-reveal>
+        <div class="drop-gauge" aria-hidden="true">
+          <svg viewBox="0 0 120 160">
+            <defs>
+              <clipPath id="drop-clip"><path d="M60 6S12 62 12 100a48 48 0 0 0 96 0C108 62 60 6 60 6Z" /></clipPath>
+            </defs>
+            <path d="M60 6S12 62 12 100a48 48 0 0 0 96 0C108 62 60 6 60 6Z" class="drop-shell" />
+            <g clip-path="url(#drop-clip)">
+              <rect x="0" y="160" width="120" height="160" class="drop-fill" data-drop-fill />
+              <path class="drop-wave" data-drop-wave d="M-120 0q15-8 30 0t30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0V200h-240Z" />
+            </g>
+            <line x1="8" x2="112" class="drop-normal" data-drop-normal />
+          </svg>
+        </div>
+        <div>
+          <p class="label">National rain · last 60 days</p>
+          <p class="big"><span data-count="pct60">—</span><small>% of normal</small></p>
+          <p class="tile-foot" data-national-foot>&nbsp;</p>
+        </div>
+      </article>
+
+      <article class="card tile" data-reveal style="--d:.08s">
+        <p class="label">Regions below normal</p>
+        <p class="big"><span data-count="deficit">—</span><small>of 11</small></p>
+        <div class="dots" data-dots aria-hidden="true"></div>
+        <p class="tile-foot">Regions getting under 75% of their usual rain</p>
+      </article>
+
+      <article class="card tile" data-reveal style="--d:.16s">
+        <p class="label">Land in a rain deficit</p>
+        <p class="big"><span data-count="area">—</span><small>%</small></p>
+        <div class="area-bar" aria-hidden="true"><span data-area-bar></span></div>
+        <p class="tile-foot">Share of the country's area, by satellite grid cells</p>
+      </article>
+
+      <article class="card tile tile-enso" data-reveal style="--d:.24s">
+        <p class="label">Pacific Ocean signal (ENSO)</p>
+        <p class="big enso-phase" data-enso-phase>—</p>
+        <svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" data-enso-spark aria-label="Oceanic Niño Index, last 24 months"></svg>
+        <p class="tile-foot" data-enso-foot>Oceanic Niño Index, NOAA</p>
+      </article>
+    </div>
+
+    <div class="strip-head" data-reveal>
+      <h3>All eleven regions</h3>
+      <p>Tap a region to dig into it. Striped tiles are in their normal dry season, so little rain is expected.</p>
+    </div>
+    <div class="region-strip" data-strip>
+      {Array.from({ length: 11 }).map(() => <div class="skeleton strip-skel"></div>)}
+    </div>
+    <div class="pulse-error" data-pulse-error hidden></div>
+  </div>
+</section>
+
+<style is:global>
+  .pulse-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.3fr; gap: 18px; }
+  .tile { display: flex; flex-direction: column; gap: 6px; min-height: 230px; transition: transform .5s var(--ease-spring), border-color .3s; }
+  .tile:hover { transform: translateY(-6px) rotate(-.4deg); border-color: var(--line); }
+  .tile .big { font-family: var(--display); font-weight: 800; font-size: clamp(3rem, 6vw, 5.4rem); line-height: .9; letter-spacing: -.05em; margin: 6px 0 4px; display: flex; align-items: baseline; gap: 8px; }
+  .tile .big small { font-size: .9rem; letter-spacing: 0; color: var(--dim); font-family: var(--body); font-weight: 700; }
+  .tile-foot { color: var(--muted); font-size: .92rem; margin: auto 0 0; }
+  .tile-hero { flex-direction: row; align-items: center; gap: 24px; background: linear-gradient(150deg, #1d2a5a, var(--surface) 70%); }
+  .drop-gauge { width: clamp(90px, 10vw, 130px); flex: none; filter: drop-shadow(0 12px 30px #4cc3ff40); }
+  .drop-shell { fill: #0c0a1c; stroke: var(--rain); stroke-width: 3; }
+  .drop-fill { fill: url(#g-rain); transition: y 2s var(--ease-out); }
+  .drop-wave { fill: #9ad8ff; opacity: .9; animation: wave 3s linear infinite; transition: transform 2s var(--ease-out); }
+  @keyframes wave { to { translate: 60px 0; } }
+  .drop-normal { stroke: var(--sun); stroke-width: 2.5; stroke-dasharray: 5 4; }
+  .tile-hero .big { color: var(--rain); }
+  .dots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .dots i { width: 16px; height: 16px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg) scale(0); transition: transform .5s var(--ease-spring); }
+  .dots i.on { transform: rotate(-45deg) scale(1); }
+  .area-bar { height: 14px; border-radius: 999px; background: var(--surface-3); overflow: hidden; margin-top: 4px; }
+  .area-bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--dry-0), var(--dry-2)); border-radius: 999px; transition: width 1.8s var(--ease-out); }
+  .enso-phase { font-size: clamp(1.8rem, 3vw, 2.6rem) !important; letter-spacing: -.03em !important; color: var(--sun); }
+  .spark { width: 100%; height: 80px; overflow: visible; }
+  .spark .zero { stroke: var(--line); stroke-dasharray: 3 4; }
+  .spark .ln { fill: none; stroke: var(--sun); stroke-width: 2; }
+  .spark .ar-pos { fill: #ff5b2e33; }
+  .spark .ar-neg { fill: #4cc3ff33; }
+  .spark .hit { fill: transparent; }
+  .spark .cross { stroke: var(--bone); stroke-width: 1; opacity: 0; }
+  .spark .pt { fill: var(--bone); opacity: 0; }
+
+  .strip-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin: 64px 0 18px; flex-wrap: wrap; }
+  .strip-head h3 { font-size: clamp(1.6rem, 3vw, 2.3rem); }
+  .strip-head p { color: var(--muted); margin: 0; max-width: 520px; }
+  .region-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .strip-skel { height: 150px; border-radius: var(--radius-sm); }
+  .rcard { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px 16px 14px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line-soft); text-align: left; cursor: pointer; overflow: hidden; transition: transform .4s var(--ease-spring), border-color .25s, box-shadow .3s; }
+  .rcard::before { content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: var(--c); }
+  .rcard.resting { background: repeating-linear-gradient(135deg, var(--surface), var(--surface) 8px, #221d40 8px, #221d40 14px); }
+  .rcard:hover { transform: translateY(-5px) rotate(-.6deg); border-color: var(--c); box-shadow: 0 16px 40px #00000055, 0 0 0 1px var(--c); }
+  .rcard.selected { border-color: var(--sun); box-shadow: 0 0 0 2px var(--sun); }
+  .rcard .rname { font-family: var(--display); font-weight: 800; font-size: 1.12rem; letter-spacing: -.02em; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .rcard .rname .zi { color: var(--c); width: 1.4em; height: 1.4em; }
+  .rcard .rpct { font-family: var(--display); font-weight: 800; font-size: 2.2rem; letter-spacing: -.04em; line-height: 1; }
+  .rcard .rpct small { font-size: .8rem; color: var(--dim); font-family: var(--body); letter-spacing: 0; margin-left: 4px; }
+  .rcard .rbar { height: 6px; border-radius: 999px; background: var(--surface-3); position: relative; margin: 6px 0 4px; }
+  .rcard .rbar span { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: var(--c); width: 0; transition: width 1.4s var(--ease-out); }
+  .rcard .rbar i { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; background: var(--bone); opacity: .6; }
+  .rcard .rlabel { font-size: .85rem; color: var(--muted); }
+  @media (max-width: 1100px) { .pulse-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 620px) { .pulse-grid { grid-template-columns: 1fr; } .tile { min-height: 0; } }
+</style>
+
+<script>
+  import { bridge, type Pulse } from '../lib/bridge';
+  import { store } from '../lib/store';
+  import { countUp, initTooltips, reveal } from '../lib/motion';
+  import { esc, icon, plainPct, statusColor, STATUS_ICON, MONTHS } from '../lib/format';
+
+  initTooltips();
+  const root = document.querySelector<HTMLElement>('#pulse')!;
+  const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
+
+  function renderStrip(p: Pulse) {
+    const strip = $('[data-strip]');
+    const order = [...p.regions].sort((a, b) => {
+      const ar = a.status === 'seasonal-dry' ? 1 : 0;
+      const br = b.status === 'seasonal-dry' ? 1 : 0;
+      return ar - br || (a.windows?.d60.pct ?? 999) - (b.windows?.d60.pct ?? 999);
+    });
+    strip.innerHTML = order.map((r, i) => {
+      const pct = r.windows?.d60.pct ?? null;
+      const c = statusColor(r.status, pct);
+      const resting = r.status === 'seasonal-dry';
+      const tip = `<b>${esc(r.name)}</b><div class="t-row"><span>Last 60 days</span><span>${r.windows?.d60.rain.toFixed(0) ?? '—'} mm</span></div><div class="t-row"><span>Normal</span><span>${r.windows?.d60.normal.toFixed(0) ?? '—'} mm</span></div><div class="t-row"><span>Dry spell</span><span>${r.drySpellDays ?? '—'} days</span></div>${r.next16 ? `<div class="t-row"><span>Next 16 days</span><span>${r.next16.totalRain.toFixed(0)} mm</span></div>` : ''}`;
+      return `<button type="button" class="rcard ${resting ? 'resting' : ''} ${r.id === store.region ? 'selected' : ''}" style="--c:${c};--d:${i * 0.04}s" data-region="${r.id}" data-reveal data-tip="${esc(tip)}">
+        <span class="rname">${esc(r.name)}${icon(STATUS_ICON[r.status] ?? 'eye')}</span>
+        <span class="rpct">${pct === null ? '—' : pct.toFixed(0)}<small>% of normal</small></span>
+        <span class="rbar"><span data-w="${Math.min(100, ((pct ?? 0) / 200) * 100)}"></span><i></i></span>
+        <span class="rlabel">${esc(r.label)}</span>
+      </button>`;
+    }).join('');
+    strip.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((b) => b.addEventListener('click', () => {
+      store.select(b.dataset.region!);
+      document.querySelector('#region')?.scrollIntoView({ behavior: 'smooth' });
+    }));
+    reveal(strip);
+    requestAnimationFrame(() => strip.querySelectorAll<HTMLElement>('[data-w]').forEach((s) => (s.style.width = `${s.dataset.w}%`)));
+  }
+
+  function renderSpark(p: Pulse) {
+    const svg = $<SVGSVGElement>('[data-enso-spark]');
+    const hist = p.drivers?.enso.history ?? [];
+    if (!hist.length) return;
+    const vals = hist.map((h) => h.value);
+    const max = Math.max(1, ...vals.map(Math.abs));
+    const x = (i: number) => (i / (hist.length - 1)) * 300;
+    const y = (v: number) => 40 - (v / max) * 36;
+    const line = hist.map((h, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(h.value).toFixed(1)}`).join('');
+    const area = `${line}L300 40L0 40Z`;
+    svg.innerHTML = `<defs><clipPath id="sp-pos"><rect x="0" y="0" width="300" height="40"/></clipPath><clipPath id="sp-neg"><rect x="0" y="40" width="300" height="40"/></clipPath></defs>
+      <path d="${area}" class="ar-pos" clip-path="url(#sp-pos)"/><path d="${area}" class="ar-neg" clip-path="url(#sp-neg)"/>
+      <line x1="0" x2="300" y1="40" y2="40" class="zero"/><path d="${line}" class="ln"/>
+      <line class="cross" y1="0" y2="80"/><circle class="pt" r="4"/>
+      <rect class="hit" x="0" y="0" width="300" height="80"/>`;
+    const cross = svg.querySelector<SVGLineElement>('.cross')!;
+    const pt = svg.querySelector<SVGCircleElement>('.pt')!;
+    const hit = svg.querySelector<SVGRectElement>('.hit')!;
+    hit.addEventListener('pointermove', (e) => {
+      const r = svg.getBoundingClientRect();
+      const i = Math.round(((e.clientX - r.left) / r.width) * (hist.length - 1));
+      const h = hist[Math.max(0, Math.min(hist.length - 1, i))];
+      const [yy, mm] = h.month.split('-').map(Number);
+      cross.setAttribute('x1', String(x(i)));
+      cross.setAttribute('x2', String(x(i)));
+      pt.setAttribute('cx', String(x(i)));
+      pt.setAttribute('cy', String(y(h.value)));
+      cross.style.opacity = '.5';
+      pt.style.opacity = '1';
+      hit.dataset.tip = `<b>${MONTHS[mm - 1]} ${yy}</b><div class="t-row"><span>ONI</span><span>${h.value > 0 ? '+' : ''}${h.value.toFixed(2)}</span></div>`;
+    });
+    hit.addEventListener('pointerleave', () => {
+      cross.style.opacity = '0';
+      pt.style.opacity = '0';
+    });
+  }
+
+  function plainWords(p: Pulse) {
+    const pct = p.national.pct60;
+    const short = p.ranking.filter((r) => (r.windows.d60.pct ?? 100) < 75).map((r) => r.name);
+    const wet = p.ranking.filter((r) => (r.windows.d60.pct ?? 0) > 130).map((r) => r.name);
+    let s = `<strong style="color:var(--ink)">In plain words:</strong> over the last two months Ethiopia as a whole got ${plainPct(pct)}`;
+    if (short.length) s += `, but <strong style="color:var(--dry-0)">${short.join(' and ')}</strong> ${short.length > 1 ? 'are' : 'is'} running short`;
+    if (wet.length) s += `${short.length ? ', while' : ', and'} <strong style="color:var(--wet-0)">${wet.slice(0, 3).join(', ')}</strong> ${wet.length > 1 ? 'are' : 'is'} unusually wet`;
+    return s + '.';
+  }
+
+  bridge.pulse().then((p) => {
+    const n = p.national;
+    $('[data-plain]').innerHTML = plainWords(p);
+    countUp($('[data-count="pct60"]'), n.pct60 ?? 0);
+    countUp($('[data-count="deficit"]'), n.regionsInDeficit);
+    countUp($('[data-count="area"]'), n.deficitAreaPct);
+    $('[data-national-foot]').innerHTML = `${n.rain60.toFixed(0)} mm fell where ${n.normal60.toFixed(0)} mm is normal · data to ${p.lastObserved}`;
+    const level = Math.min(200, n.pct60 ?? 0) / 200;
+    const fillY = 160 - level * 150;
+    const fill = $<SVGRectElement>('[data-drop-fill]');
+    const wave = $<SVGPathElement>('[data-drop-wave]');
+    requestAnimationFrame(() => {
+      fill.setAttribute('y', String(fillY + 4));
+      wave.style.transform = `translateY(${fillY}px)`;
+    });
+    const nl = $<SVGLineElement>('[data-drop-normal]');
+    nl.setAttribute('y1', '85');
+    nl.setAttribute('y2', '85');
+    const dots = $('[data-dots]');
+    const sorted = [...p.regions].sort((a, b) => (a.windows?.d60.pct ?? 999) - (b.windows?.d60.pct ?? 999));
+    dots.innerHTML = sorted.map((r) => `<i style="background:${statusColor(r.status, r.windows?.d60.pct ?? null)}" data-tip="<b>${esc(r.name)}</b><br>${esc(r.label)}"></i>`).join('');
+    dots.querySelectorAll('i').forEach((d, i) => setTimeout(() => d.classList.add('on'), 300 + i * 90));
+    setTimeout(() => ($('[data-area-bar]').style.width = `${n.deficitAreaPct}%`), 300);
+    if (p.drivers) {
+      const e = p.drivers.enso;
+      $('[data-enso-phase]').textContent = e.phase.replace(/^\w/, (c) => c.toUpperCase());
+      $('[data-enso-foot]').innerHTML = `ONI ${e.value > 0 ? '+' : ''}${e.value.toFixed(2)} in ${e.month} · trend ${e.trend > 0 ? '+' : ''}${e.trend.toFixed(2)} over 3 months · NOAA`;
+      renderSpark(p);
+    }
+    renderStrip(p);
+  }).catch((err) => {
+    const box = $('[data-pulse-error]');
+    box.hidden = false;
+    box.innerHTML = `<div class="error-box">${icon('info')}<div><b>Live data is offline.</b> ${esc(err.message)}</div></div>`;
+    $('[data-strip]').innerHTML = '';
+  });
+
+  store.subscribe((id) => root.querySelectorAll('.rcard').forEach((c) => c.classList.toggle('selected', (c as HTMLElement).dataset.region === id)));
+</script>

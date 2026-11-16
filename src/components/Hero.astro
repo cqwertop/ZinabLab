@@ -1,0 +1,294 @@
+---
+let seed = 7;
+const rand = () => {
+  seed = (seed * 16807) % 2147483647;
+  return (seed - 1) / 2147483646;
+};
+const blades = Array.from({ length: 120 }, (_, i) => {
+  const x = (i / 120) * 1440 + rand() * 14;
+  const h = 40 + rand() * 90;
+  const lean = (rand() - 0.5) * 40;
+  return { d: `M${x.toFixed(1)} 400 Q${(x + lean * 0.4).toFixed(1)} ${(400 - h * 0.6).toFixed(1)} ${(x + lean).toFixed(1)} ${(400 - h).toFixed(1)}`, delay: (rand() * -4).toFixed(2), tone: rand() > 0.7 ? 'b' : 'a' };
+});
+---
+<section class="hero" id="top" data-sky="normal" aria-labelledby="hero-title">
+  <div class="sky" aria-hidden="true">
+    <div class="sun"></div>
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+  </div>
+  <canvas class="sky-canvas" aria-hidden="true"></canvas>
+  <div class="flash" aria-hidden="true"></div>
+
+  <svg class="birds" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <use href="#w-bird" class="bird b1" width="70" height="44" />
+    <use href="#w-bird" class="bird b2" width="46" height="29" />
+    <use href="#w-bird" class="bird b3" width="34" height="21" />
+  </svg>
+
+  <div class="ridges" aria-hidden="true">
+    <svg class="ridge r-far" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice"><path d="M0 260 80 230l60 10 70-60h90l30-32h90l30 40 70 10 80-60h90l30-22h80l40 48 90 10 70-50h90l30 30 80 10 70-50h90l80 36v240H0Z" /></svg>
+    <svg class="ridge r-mid" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice"><path d="m0 300 60-10 60-40h70l40 30 90 10 60-60h90l30 32 60 20 80-60 60-10h60l40 38 80 20 80-40h80l40 34 80 18 70-40h70l50 32 90-10v140H0Z" /></svg>
+    <svg class="ridge r-near" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice">
+      <path d="M0 340c120-20 220-10 320-20s200-20 280-5 160 20 280 7 200-22 300-4 180 12 260 7v75H0Z" />
+      <use href="#w-tree" x="150" y="196" width="230" height="144" class="acacia" />
+      <g class="wolf-group" transform="translate(1012 262)">
+        <use href="#w-wolf" width="96" height="60" class="wolf" />
+        <path class="howl h1" d="M88 6a10 10 0 0 1 10 10" />
+        <path class="howl h2" d="M90 -2a18 18 0 0 1 18 18" />
+        <path class="howl h3" d="M92 -10a26 26 0 0 1 26 26" />
+      </g>
+    </svg>
+    <svg class="grass" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice">
+      {blades.map((b) => <path d={b.d} class={`blade ${b.tone}`} style={`animation-delay:${b.delay}s`} />)}
+    </svg>
+  </div>
+
+  <div class="hero-inner wrap">
+    <p class="hero-kicker" data-reveal>
+      <span class="pill"><svg class="zi"><use href="#i-satellite" /></svg>NASA Space Apps · Dancing with the SARs</span>
+    </p>
+    <div class="geez-wrap" aria-hidden="true"><span class="geez-giant">ዝናብ</span></div>
+    <h1 id="hero-title" class="hero-title" data-reveal style="--d:.1s">
+      Where did the <span class="rain-word">rain<svg viewBox="0 0 120 30" class="squiggle"><path d="M2 20c12-14 22-14 30 0s18 14 28 0 20-14 28 0 18 14 30 0" /></svg></span> go?
+    </h1>
+    <p class="hero-lede" data-reveal style="--d:.2s">
+      <strong>Zinab</strong> (ዝናብ) means <em>rain</em> in Amharic. We follow it across all eleven regions of Ethiopia, spot the places where the sky has gone quiet, and dig into why, using satellites, ocean signals and the news.
+    </p>
+    <div class="hero-cta" data-reveal style="--d:.3s">
+      <a class="btn btn-sun" href="#dry"><svg class="zi"><use href="#i-crack" /></svg>Find the dry zones</a>
+      <button class="btn btn-ghost" type="button" data-open-gelada><svg class="zi"><use href="#i-ask" /></svg>Ask Gelada</button>
+    </div>
+    <p class="sky-caption" data-reveal style="--d:.45s"><svg class="zi"><use href="#i-eye" /></svg><span data-sky-caption>Reading the sky over Ethiopia…</span></p>
+  </div>
+
+  <div class="ticker" aria-label="Live rain headlines">
+    <div class="ticker-track" data-ticker>
+      <span class="tick"><b>Connecting</b> to NASA POWER, NOAA and Open-Meteo</span>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .hero { position: relative; min-height: 100svh; display: grid; align-items: center; overflow: hidden; isolation: isolate; padding-block: 130px 140px; }
+  .hero .sky { position: absolute; inset: 0; z-index: -4; background: linear-gradient(180deg, #0a0820 0%, #1d1240 38%, #4a1f3a 62%, #a4472a 82%, #e8862a 100%); transition: filter 2s; }
+  .hero[data-sky='wet'] .sky { filter: saturate(.7) brightness(.72) hue-rotate(-18deg); }
+  .hero[data-sky='dry'] .sky { filter: saturate(1.3) brightness(1.06); }
+  .hero .sun { position: absolute; right: 14%; bottom: 22%; width: clamp(160px, 22vw, 340px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff3c4, #ffc23d 38%, #ff7a1a 70%, #ff5b2e00 72%); box-shadow: 0 0 120px 40px #ff8a2a55; animation: sunPulse 7s ease-in-out infinite; transition: transform 2s, opacity 2s; }
+  .hero[data-sky='wet'] .sun { opacity: .35; transform: scale(.85); }
+  .hero[data-sky='dry'] .sun { transform: scale(1.18); box-shadow: 0 0 200px 80px #ff6a2a77; }
+  @keyframes sunPulse { 50% { box-shadow: 0 0 160px 60px #ff8a2a66; } }
+  .hero .cloud { position: absolute; border-radius: 50%; background: #2a1d4a; filter: blur(30px); opacity: .7; animation: drift linear infinite; }
+  .hero .c1 { width: 60vw; height: 22vh; top: 6%; left: -20%; animation-duration: 80s; }
+  .hero .c2 { width: 45vw; height: 18vh; top: 20%; left: 40%; animation-duration: 110s; animation-delay: -40s; background: #3a2050; }
+  .hero .c3 { width: 70vw; height: 26vh; top: -6%; left: 60%; animation-duration: 140s; animation-delay: -70s; }
+  .hero[data-sky='wet'] .cloud { background: #1a1834; opacity: .95; }
+  .hero[data-sky='dry'] .cloud { opacity: .25; }
+  @keyframes drift { from { transform: translateX(-30vw); } to { transform: translateX(60vw); } }
+  .sky-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -3; pointer-events: none; }
+  .flash { position: absolute; inset: 0; z-index: -2; background: #dfe8ff; opacity: 0; pointer-events: none; mix-blend-mode: overlay; }
+  .flash.on { animation: flash .9s ease-out; }
+  @keyframes flash { 0% { opacity: 0; } 8% { opacity: .85; } 14% { opacity: .1; } 22% { opacity: .6; } 100% { opacity: 0; } }
+
+  .birds { position: absolute; inset: 0 0 auto; height: 60%; width: 100%; z-index: -2; color: #120b22; overflow: visible; pointer-events: none; }
+  .bird { animation: glide linear infinite; }
+  .b1 { animation-duration: 46s; }
+  .b2 { animation-duration: 64s; animation-delay: -22s; }
+  .b3 { animation-duration: 80s; animation-delay: -50s; }
+  @keyframes glide { 0% { transform: translate(-120px, 120px) rotate(4deg); } 25% { transform: translate(380px, 80px) rotate(-3deg); } 50% { transform: translate(760px, 130px) rotate(3deg); } 75% { transform: translate(1140px, 70px) rotate(-2deg); } 100% { transform: translate(1600px, 110px) rotate(2deg); } }
+
+  .ridges { position: absolute; inset: auto 0 0; height: 62%; z-index: -1; pointer-events: none; }
+  .ridge, .grass { position: absolute; inset: auto 0 0; width: 100%; height: 100%; will-change: transform; }
+  .r-far path { fill: #2b1844; }
+  .r-mid path { fill: #1a1030; }
+  .r-near path, .r-near .acacia, .r-near .wolf { fill: #0c0a1c; color: #0c0a1c; }
+  .r-near .wolf { transform-origin: 70% 90%; animation: wolfBreathe 5s ease-in-out infinite; }
+  @keyframes wolfBreathe { 50% { transform: scaleY(1.03); } }
+  .howl { fill: none; stroke: #ffd27a; stroke-width: 2.4; stroke-linecap: round; opacity: 0; animation: howl 6s ease-out infinite; }
+  .howl.h2 { animation-delay: .25s; }
+  .howl.h3 { animation-delay: .5s; }
+  @keyframes howl { 0%, 60% { opacity: 0; transform: translate(0, 0); } 66% { opacity: .9; } 90% { opacity: 0; transform: translate(6px, -6px); } 100% { opacity: 0; } }
+  .grass { height: 34%; }
+  .blade { fill: none; stroke-width: 2.2; stroke-linecap: round; transform-box: fill-box; transform-origin: bottom center; animation: sway 4.5s ease-in-out infinite alternate; }
+  .blade.a { stroke: #0c0a1c; }
+  .blade.b { stroke: #2a1a14; }
+  .hero[data-sky='wet'] .blade.b { stroke: #1d3a26; }
+  @keyframes sway { from { transform: skewX(-6deg); } to { transform: skewX(7deg); } }
+
+  .hero-inner { position: relative; display: grid; gap: 22px; justify-items: start; }
+  .hero-kicker { margin: 0; }
+  .pill { display: inline-flex; align-items: center; gap: 10px; padding: 9px 16px; border-radius: 999px; background: #0c0a1c99; border: 1px solid #ffffff22; backdrop-filter: blur(10px); font-family: var(--mono); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sun); }
+  .geez-wrap { position: absolute; inset: -14vh -4vw auto auto; z-index: -1; pointer-events: none; }
+  .geez-giant { display: block; font-family: var(--geez); font-weight: 900; font-size: clamp(9rem, 30vw, 30rem); line-height: 1; color: transparent; -webkit-text-stroke: 2px #ffb02040; animation: float 9s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-18px) rotate(-1.5deg); } }
+  .hero-title { font-size: clamp(3.3rem, 11vw, 10.5rem); line-height: .86; letter-spacing: -.055em; max-width: 12ch; text-shadow: 0 10px 60px #0c0a1c; }
+  .rain-word { position: relative; color: var(--rain); display: inline-block; }
+  .squiggle { position: absolute; left: 0; bottom: -.12em; width: 100%; height: .3em; overflow: visible; }
+  .squiggle path { fill: none; stroke: var(--sun); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 220; stroke-dashoffset: 220; animation: draw 1.6s .8s var(--ease-out) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .hero-lede { max-width: 640px; font-size: clamp(1.12rem, 1.7vw, 1.38rem); color: #efe6f7; text-shadow: 0 2px 20px #0c0a1c; margin: 0; }
+  .hero-lede em { color: var(--sun); font-style: normal; font-weight: 700; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+  .sky-caption { display: inline-flex; align-items: center; gap: 10px; margin: 6px 0 0; padding: 8px 14px; border-radius: 12px; background: #0c0a1c88; border: 1px solid #ffffff18; backdrop-filter: blur(8px); font-size: .92rem; color: var(--muted); }
+  .sky-caption .zi { color: var(--sun); }
+
+  .ticker { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; background: var(--sun); color: var(--night); overflow: hidden; transform: rotate(-1.2deg) translateY(10px); box-shadow: 0 -8px 0 var(--ember); }
+  .ticker-track { display: flex; gap: 0; width: max-content; animation: ticker 48s linear infinite; padding: 14px 0; }
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+  .tick { display: inline-flex; align-items: center; gap: 10px; padding-inline: 28px; font-family: var(--display); font-weight: 600; font-size: 1.05rem; white-space: nowrap; }
+  .tick b { font-weight: 800; }
+  .tick::after { content: ''; width: 10px; height: 10px; margin-left: 28px; background: var(--night); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
+  @keyframes ticker { to { transform: translateX(-50%); } }
+
+  @media (max-width: 700px) {
+    .hero { padding-block: 120px 150px; }
+    .geez-wrap { inset: -6vh -20vw auto auto; }
+    .hero .sun { right: -10%; bottom: 30%; }
+  }
+</style>
+
+<script>
+  import { bridge } from '../lib/bridge';
+  import { reducedMotion } from '../lib/motion';
+
+  const hero = document.querySelector<HTMLElement>('.hero')!;
+  const canvas = hero.querySelector<HTMLCanvasElement>('.sky-canvas')!;
+  const flash = hero.querySelector<HTMLElement>('.flash')!;
+  const ctx = canvas.getContext('2d')!;
+  type P = { x: number; y: number; v: number; l: number; a: number; r: number };
+  let mode: 'wet' | 'normal' | 'dry' = 'normal';
+  let particles: P[] = [];
+  let w = 0;
+  let h = 0;
+  let running = true;
+  let lastBolt = 0;
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth;
+    h = canvas.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    seed();
+  }
+
+  function seed() {
+    const area = (w * h) / 1e6;
+    const count = mode === 'wet' ? 340 * area + 120 : mode === 'normal' ? 140 * area + 40 : 70 * area + 30;
+    particles = Array.from({ length: Math.round(count) }, () => spawn(true));
+  }
+
+  function spawn(anywhere = false): P {
+    if (mode === 'dry') {
+      return { x: Math.random() * w, y: anywhere ? Math.random() * h : h + 10, v: 0.15 + Math.random() * 0.45, l: 0, a: 0.15 + Math.random() * 0.45, r: 0.8 + Math.random() * 2.2 };
+    }
+    return { x: Math.random() * (w + 200) - 100, y: anywhere ? Math.random() * h : -20, v: (mode === 'wet' ? 13 : 8) + Math.random() * 6, l: (mode === 'wet' ? 18 : 11) + Math.random() * 10, a: 0.18 + Math.random() * 0.4, r: 0 };
+  }
+
+  function frame(t: number) {
+    if (!running) return;
+    ctx.clearRect(0, 0, w, h);
+    if (mode === 'dry') {
+      for (const p of particles) {
+        p.y -= p.v;
+        p.x += Math.sin((t / 1400) + p.y / 60) * 0.5;
+        if (p.y < -10) Object.assign(p, spawn());
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255, ${170 + Math.round(p.a * 60)}, 110, ${p.a})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      ctx.lineCap = 'round';
+      const slant = mode === 'wet' ? 0.28 : 0.16;
+      for (const p of particles) {
+        p.y += p.v;
+        p.x += p.v * slant;
+        if (p.y > h + 20) Object.assign(p, spawn());
+        ctx.strokeStyle = `rgba(160, 215, 255, ${p.a})`;
+        ctx.lineWidth = mode === 'wet' ? 1.4 : 1.1;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - p.l * slant, p.y - p.l);
+        ctx.stroke();
+      }
+      if (mode === 'wet' && t - lastBolt > 5000 + Math.random() * 9000) {
+        lastBolt = t;
+        flash.classList.remove('on');
+        void flash.offsetWidth;
+        flash.classList.add('on');
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function setMode(next: typeof mode) {
+    mode = next;
+    hero.dataset.sky = next;
+    seed();
+  }
+
+  const io = new IntersectionObserver(([entry]) => {
+    const wasRunning = running;
+    running = entry.isIntersecting && !reducedMotion();
+    if (running && !wasRunning) requestAnimationFrame(frame);
+  });
+
+  resize();
+  window.addEventListener('resize', resize);
+  if (!reducedMotion()) {
+    io.observe(hero);
+    requestAnimationFrame(frame);
+  } else {
+    running = false;
+  }
+
+  const layers = [
+    [hero.querySelector<SVGElement>('.r-far'), 0.08],
+    [hero.querySelector<SVGElement>('.r-mid'), 0.16],
+    [hero.querySelector<SVGElement>('.r-near'), 0.26],
+    [hero.querySelector<SVGElement>('.grass'), 0.34],
+  ] as const;
+  const giant = hero.querySelector<HTMLElement>('.geez-giant');
+  if (!reducedMotion()) {
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = Math.min(window.scrollY, window.innerHeight * 1.2);
+        layers.forEach(([el, k]) => el && (el.style.transform = `translateY(${y * k}px)`));
+        if (giant) giant.style.translate = `0 ${y * -0.25}px`;
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
+
+  const caption = hero.querySelector<HTMLElement>('[data-sky-caption]')!;
+  const ticker = hero.querySelector<HTMLElement>('[data-ticker]')!;
+
+  bridge.pulse().then((p) => {
+    const pct = p.national.pct60 ?? 100;
+    setMode(pct >= 110 ? 'wet' : pct < 80 ? 'dry' : 'normal');
+    const word = pct >= 110 ? 'rain and lightning' : pct < 80 ? 'dust and heat haze' : 'light rain';
+    caption.innerHTML = `This sky is live: Ethiopia has had <b style="color:var(--ink)">${pct.toFixed(0)}% of its normal rain</b> over the last 60 days, so you are seeing ${word}.`;
+    const items: string[] = [
+      `<b>${pct.toFixed(0)}%</b> of normal rain nationally, last 60 days`,
+      `<b>${p.national.regionsInDeficit}</b> of 11 regions below normal`,
+    ];
+    p.ranking.slice(0, 3).forEach((r) => items.push(`<b>${r.name}</b> ${r.windows.d60.pct?.toFixed(0)}% of normal · ${r.label.toLowerCase()}`));
+    if (p.drivers) {
+      items.push(`ENSO: <b>${p.drivers.enso.phase}</b> (ONI ${p.drivers.enso.value > 0 ? '+' : ''}${p.drivers.enso.value.toFixed(1)})`);
+      items.push(`Indian Ocean Dipole: <b>${p.drivers.iod.phase}</b>`);
+    }
+    items.push(`NASA POWER data through <b>${p.lastObserved}</b>`);
+    const html = items.map((i) => `<span class="tick">${i}</span>`).join('');
+    ticker.innerHTML = html + html;
+  }).catch(() => {
+    caption.textContent = 'The live sky needs the Python server. Start the backend to light it up.';
+    ticker.innerHTML = '<span class="tick"><b>Offline</b> start the Zinab Python server to stream live rain data</span>'.repeat(2);
+  });
+</script>

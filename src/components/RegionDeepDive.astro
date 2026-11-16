@@ -1,0 +1,503 @@
+<section class="section deep" id="region" aria-labelledby="deep-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal><span class="geez">፬</span>Why? · region deep dive</span>
+      <h2 class="headline" id="deep-title" data-reveal style="--d:.08s">Follow the clues behind <em>every drop.</em></h2>
+      <p class="lede" data-reveal style="--d:.16s">Pick a region. Zinab weighs the season, the Pacific and Indian Oceans, heat, soil moisture and the latest news, then tells you in plain words why rain is or is not falling, and what is likely next.</p>
+    </div>
+
+    <div class="picker" data-picker>
+      <button class="pick-arrow" type="button" data-step="-1" aria-label="Previous region"><svg class="zi" style="transform:scaleX(-1)"><use href="#i-arrow" /></svg></button>
+      <label class="pick-select"><span class="sr-only">Region</span><select data-select></select></label>
+      <button class="pick-arrow" type="button" data-step="1" aria-label="Next region"><svg class="zi"><use href="#i-arrow" /></svg></button>
+      <div class="pick-chips" data-chips></div>
+    </div>
+
+    <div class="deep-body" data-body aria-live="polite">
+      <div class="deep-loading"><span class="drip-loader"><i></i><i></i><i></i></span><span data-load-msg>Gathering clues…</span></div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .picker { position: sticky; top: 84px; z-index: 50; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px; margin-bottom: 26px; border-radius: 20px; background: #0c0a1cdd; border: 1px solid var(--line); backdrop-filter: blur(14px); }
+  .pick-arrow { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); display: grid; place-items: center; cursor: pointer; transition: transform .3s var(--ease-spring), border-color .2s; }
+  .pick-arrow:hover { border-color: var(--sun); transform: scale(1.08); }
+  .pick-select select { appearance: none; background: var(--sun); color: var(--night); border: 0; border-radius: 999px; padding: 11px 42px 11px 20px; font-family: var(--display); font-weight: 800; font-size: 1.1rem; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--night) 50%), linear-gradient(135deg, var(--night) 50%, transparent 50%); background-position: calc(100% - 22px) 52%, calc(100% - 16px) 52%; background-size: 6px 6px; background-repeat: no-repeat; }
+  .pick-chips { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; }
+  .pick-chips::-webkit-scrollbar { display: none; }
+  .pick-chips .chip { padding: 6px 12px; font-size: .85rem; white-space: nowrap; }
+  .pick-chips .chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+
+  .deep-loading { display: flex; align-items: center; gap: 14px; padding: 60px 0; color: var(--muted); font-size: 1.1rem; justify-content: center; }
+  .deep-body.fade { animation: fadeUp .7s var(--ease-out); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+  .dd-head { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; margin-bottom: 22px; }
+  .dd-name { font-size: clamp(3rem, 9vw, 7.5rem); line-height: .85; letter-spacing: -.055em; }
+  .dd-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; color: var(--muted); }
+  .sentinel { display: flex; gap: 16px; align-items: center; max-width: 430px; padding: 16px 18px; border-radius: 20px; background: linear-gradient(135deg, #2b3a1a, #17142c 80%); border: 1px solid #a6e35a33; }
+  .sentinel .wild-icon { width: 92px; height: 58px; flex: none; color: var(--moss); animation: sniff 4s ease-in-out infinite; }
+  @keyframes sniff { 50% { transform: translateY(-3px) rotate(-2deg); } }
+  .sentinel b { display: block; font-family: var(--display); font-size: 1.05rem; color: var(--moss); }
+  .sentinel p { margin: 2px 0 0; font-size: .88rem; color: var(--muted); line-height: 1.45; }
+
+  .dd-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px; }
+  .span-12 { grid-column: span 12; }
+  .span-8 { grid-column: span 8; }
+  .span-7 { grid-column: span 7; }
+  .span-6 { grid-column: span 6; }
+  .span-5 { grid-column: span 5; }
+  .span-4 { grid-column: span 4; }
+
+  .why-card { background: linear-gradient(145deg, #2a1730, var(--surface) 65%); border-color: #ff5b2e33; }
+  .why-headline { font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 2.4vw, 2rem); line-height: 1.18; letter-spacing: -.02em; margin: 10px 0 16px; text-wrap: pretty; }
+  .confidence { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: .9rem; color: var(--muted); }
+  .confidence .meter { display: flex; gap: 4px; }
+  .confidence .meter i { width: 26px; height: 8px; border-radius: 4px; background: var(--surface-3); }
+  .confidence .meter i.on { background: var(--sun); }
+  .factors { display: grid; gap: 10px; }
+  .factor { display: grid; grid-template-columns: 44px 1fr; gap: 14px; padding: 14px; border-radius: 16px; background: #0c0a1c66; border: 1px solid var(--line-soft); transition: transform .35s var(--ease-spring), border-color .2s; }
+  .factor:hover { transform: translateX(6px); border-color: var(--vc); }
+  .factor .f-ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--vc) 18%, transparent); color: var(--vc); }
+  .factor .f-ico .zi { width: 24px; height: 24px; }
+  .factor .f-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .factor h4 { font-size: 1.08rem; letter-spacing: -.01em; font-weight: 700; }
+  .factor .tag { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; background: var(--vc); color: var(--night); font-weight: 700; }
+  .factor p { margin: 6px 0 4px; color: var(--muted); font-size: .95rem; line-height: 1.55; }
+  .factor .src { font-family: var(--mono); font-size: .72rem; color: var(--dim); }
+
+  .win-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+  .win { padding: 14px; border-radius: 16px; background: #0c0a1c66; border: 1px solid var(--line-soft); }
+  .win b { display: block; font-family: var(--display); font-size: 2rem; letter-spacing: -.04em; line-height: 1; margin: 6px 0 4px; }
+  .win span { font-size: .8rem; color: var(--dim); }
+  .mini-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .mini { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 16px; background: #0c0a1c66; border: 1px solid var(--line-soft); }
+  .mini .zi { width: 28px; height: 28px; color: var(--sun); }
+  .mini b { display: block; font-family: var(--display); font-size: 1.35rem; letter-spacing: -.02em; }
+  .mini span { font-size: .8rem; color: var(--dim); }
+
+  .chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .chart text { font-family: var(--mono); font-size: 11px; fill: var(--dim); }
+  .chart .gl { stroke: var(--line-soft); stroke-width: 1; }
+  .chart .ax { stroke: var(--line); }
+  .chart .l-rain { fill: none; stroke: var(--rain); stroke-width: 2.5; }
+  .chart .l-norm { fill: none; stroke: var(--sun); stroke-width: 2; stroke-dasharray: 6 5; }
+  .chart .a-wet { fill: #4cc3ff30; }
+  .chart .a-dry { fill: #ff5b2e3a; }
+  .chart .cross { stroke: var(--bone); stroke-width: 1; opacity: 0; pointer-events: none; }
+  .chart .dot { opacity: 0; pointer-events: none; }
+  .chart .hit { fill: transparent; cursor: crosshair; }
+  .chart .lab { font-family: var(--display); font-size: 13px; font-weight: 700; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; font-size: .85rem; color: var(--muted); }
+  .legend-row span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend-row i { width: 18px; height: 3px; border-radius: 2px; }
+  .legend-row i.dash { background: repeating-linear-gradient(90deg, var(--sun) 0 5px, transparent 5px 9px); }
+
+  .nowcast-bar { position: relative; display: flex; height: 34px; border-radius: 10px; overflow: hidden; background: var(--surface-3); margin: 18px 0 10px; }
+  .nowcast-bar span { height: 100%; transition: width 1.4s var(--ease-out); width: 0; }
+  .nowcast-bar .obs { background: var(--rain); }
+  .nowcast-bar .fc { background: repeating-linear-gradient(135deg, var(--wet-1) 0 6px, var(--wet-2) 6px 12px); }
+  .nowcast-bar .cl { background: var(--neutral); }
+  .nowcast-normal { position: absolute; top: -6px; bottom: -6px; width: 3px; background: var(--sun); border-radius: 2px; }
+  .nowcast-big { font-family: var(--display); font-weight: 800; font-size: 3rem; letter-spacing: -.05em; line-height: 1; }
+
+  .outlook-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .ocard { padding: 16px; border-radius: 18px; background: #0c0a1c66; border: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 10px; }
+  .ocard.dryseason { background: repeating-linear-gradient(135deg, #0c0a1c66 0 8px, #1a163266 8px 14px); }
+  .ocard h4 { font-size: 1.6rem; letter-spacing: -.03em; display: flex; justify-content: space-between; align-items: baseline; }
+  .ocard h4 small { font-family: var(--mono); font-size: .72rem; color: var(--dim); font-weight: 400; letter-spacing: .06em; }
+  .terciles { display: flex; height: 30px; border-radius: 10px; overflow: hidden; gap: 2px; }
+  .terciles span { display: grid; place-items: center; font-family: var(--mono); font-size: .74rem; font-weight: 700; color: var(--night); min-width: 0; transition: flex-grow 1.2s var(--ease-out); }
+  .terciles .tb { background: var(--dry-2); }
+  .terciles .tn { background: var(--neutral); color: var(--bone); }
+  .terciles .ta { background: var(--wet-2); color: var(--bone); }
+  .ter-legend { display: flex; justify-content: space-between; font-size: .72rem; color: var(--dim); font-family: var(--mono); }
+  .lean { font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+  .drivers-mini { display: grid; gap: 5px; }
+  .drv { display: grid; grid-template-columns: 1fr 90px; align-items: center; gap: 8px; font-size: .8rem; color: var(--muted); }
+  .drv .dtrack { position: relative; height: 8px; background: var(--surface-3); border-radius: 4px; }
+  .drv .dtrack::before { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--bone); opacity: .5; }
+  .drv .dtrack span { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+
+  .kit { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .kit-card { padding: 18px; border-radius: 18px; background: linear-gradient(160deg, #20341f, #17142c 75%); border: 1px solid #a6e35a2a; transition: transform .4s var(--ease-spring); }
+  .kit-card:hover { transform: translateY(-5px) rotate(.5deg); }
+  .kit-card .kc-top { display: flex; align-items: center; gap: 10px; color: var(--moss); font-family: var(--mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; }
+  .kit-card .kc-top .zi { width: 26px; height: 26px; }
+  .kit-card h4 { font-size: 1.15rem; margin: 10px 0 6px; letter-spacing: -.01em; }
+  .kit-card p { margin: 0; font-size: .93rem; color: var(--muted); }
+
+  .news-list { display: grid; gap: 4px; margin-top: 10px; }
+  .news-item { display: grid; gap: 4px; padding: 12px 10px; border-radius: 12px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line-soft); transition: background .2s; }
+  .news-item:hover { background: #ffffff08; color: var(--ink); }
+  .news-item b { font-family: var(--display); font-weight: 600; font-size: 1rem; line-height: 1.3; }
+  .news-item .nmeta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: .78rem; color: var(--dim); font-family: var(--mono); }
+  .ctag { padding: 2px 8px; border-radius: 999px; background: #ffb0201f; color: var(--sun); font-size: .7rem; }
+  .signals { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .signal { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--surface-3); font-size: .85rem; }
+  .signal b { font-family: var(--mono); color: var(--sun); }
+
+  .stripes { display: grid; gap: 3px; margin-top: 14px; }
+  .stripe-row { display: grid; grid-template-columns: 44px repeat(12, 1fr) 70px; gap: 3px; align-items: center; }
+  .stripe-row .yr { font-family: var(--mono); font-size: .76rem; color: var(--dim); }
+  .stripe-row .cell { height: 22px; border-radius: 4px; transform: scaleY(0); transform-origin: bottom; transition: transform .6s var(--ease-spring); }
+  .stripes.is-in .cell { transform: scaleY(1); }
+  .stripe-row .ypct { font-family: var(--mono); font-size: .76rem; text-align: right; }
+  .stripe-head { display: grid; grid-template-columns: 44px repeat(12, 1fr) 70px; gap: 3px; font-family: var(--mono); font-size: .66rem; color: var(--dim); text-align: center; }
+
+  @media (max-width: 1080px) {
+    .span-8, .span-7, .span-6, .span-5, .span-4 { grid-column: span 12; }
+    .dd-head { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .outlook-cards { grid-template-columns: 1fr; }
+    .win-tiles { grid-template-columns: 1fr 1fr 1fr; }
+    .win b { font-size: 1.5rem; }
+    .picker { top: 76px; }
+    .pick-chips { display: none; }
+    .stripe-row, .stripe-head { grid-template-columns: 34px repeat(12, 1fr) 46px; }
+  }
+</style>
+
+<script>
+  import { bridge, type RegionDetail, type RegionsPayload, type Pulse } from '../lib/bridge';
+  import { store } from '../lib/store';
+  import { reveal, hideTip, showTip, initTooltips } from '../lib/motion';
+  import { MONTHS, MONTHS_LONG, esc, icon, niceDate, pctColor, signed, statusColor, zColor, DRY, WET, NEUTRAL } from '../lib/format';
+
+  initTooltips();
+  const root = document.querySelector<HTMLElement>('#region')!;
+  const body = root.querySelector<HTMLElement>('[data-body]')!;
+  const select = root.querySelector<HTMLSelectElement>('[data-select]')!;
+  const chips = root.querySelector<HTMLElement>('[data-chips]')!;
+  let regions: RegionsPayload['regions'] = [];
+  let token = 0;
+
+  const SENTINEL_ICON: Record<string, string> = {
+    'addis-ababa': 'tree', afar: 'equid', amhara: 'primate', 'benishangul-gumuz': 'tree', 'dire-dawa': 'primate', gambela: 'antelope', harari: 'hyena', oromia: 'wolf', snnpr: 'tree', somali: 'antelope', tigray: 'bird',
+  };
+  const VERDICT: Record<string, { tag: string; color: string }> = {
+    primary: { tag: 'Main cause', color: 'var(--ember)' },
+    contributing: { tag: 'Adds to it', color: 'var(--sun)' },
+    evidence: { tag: 'Evidence', color: 'var(--rain)' },
+    counter: { tag: 'Points the other way', color: 'var(--wet-0)' },
+    context: { tag: 'Context', color: 'var(--dim)' },
+  };
+  const FACTOR_ICON: Record<string, string> = { season: 'calendar', enso: 'wave', iod: 'wave', heat: 'thermo', soil: 'soil', dryspell: 'sun', news: 'news', outlook: 'spark' };
+  const KIT_ICON: Record<string, string> = { sprout: 'sprout', hoof: 'hoof', drop: 'drop', bolt: 'bolt', sun: 'sun' };
+
+  function setupPicker(p: Pulse | null) {
+    select.innerHTML = regions.map((r) => `<option value="${r.id}">${esc(r.name)}</option>`).join('');
+    select.value = store.region;
+    chips.innerHTML = regions.map((r) => {
+      const st = p?.regions.find((x) => x.id === r.id);
+      const c = st ? statusColor(st.status, st.windows?.d60.pct ?? null) : NEUTRAL;
+      return `<button class="chip" style="--c:${c}" aria-pressed="${r.id === store.region}" data-region="${r.id}"><i></i>${esc(r.name)}</button>`;
+    }).join('');
+    chips.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((b) => b.addEventListener('click', () => store.select(b.dataset.region!)));
+    select.addEventListener('change', () => store.select(select.value));
+    root.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) => b.addEventListener('click', () => {
+      const i = regions.findIndex((r) => r.id === store.region);
+      const next = regions[(i + Number(b.dataset.step) + regions.length) % regions.length];
+      store.select(next.id);
+    }));
+  }
+
+  function cumulativeChart(d: RegionDetail) {
+    const s = d.status.series;
+    if (!s?.length) return '<p class="card-sub">No daily data yet.</p>';
+    const W = 760, H = 250, L = 46, R = 70, T = 16, B = 30;
+    const max = Math.max(...s.map((p) => Math.max(p.cumRain, p.cumNormal)), 10) * 1.08;
+    const x = (i: number) => L + (i / (s.length - 1)) * (W - L - R);
+    const y = (v: number) => T + (1 - v / max) * (H - T - B);
+    const rainPts = s.map((p, i) => `${x(i).toFixed(1)},${y(p.cumRain).toFixed(1)}`);
+    const normPts = s.map((p, i) => `${x(i).toFixed(1)},${y(p.cumNormal).toFixed(1)}`);
+    const between = `M${rainPts.join('L')}L${[...normPts].reverse().join('L')}Z`;
+    const aboveNorm = `M${L},${T}L${normPts.join('L')}L${W - R},${T}Z`;
+    const belowNorm = `M${L},${H - B}L${normPts.join('L')}L${W - R},${H - B}Z`;
+    const ticks = [0, 0.25, 0.5, 0.75, 1].map((k) => Math.round((max * k) / 10) * 10);
+    const months: string[] = [];
+    s.forEach((p, i) => { if (p.date.endsWith('-01')) months.push(`<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${MONTHS[Number(p.date.slice(5, 7)) - 1]}</text><line class="gl" x1="${x(i)}" x2="${x(i)}" y1="${T}" y2="${H - B}"/>`); });
+    const last = s[s.length - 1];
+    const diff = last.cumRain - last.cumNormal;
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" data-cum role="img" aria-label="Cumulative rain over the last 90 days compared with normal">
+      <defs><clipPath id="cp-above"><path d="${aboveNorm}"/></clipPath><clipPath id="cp-below"><path d="${belowNorm}"/></clipPath></defs>
+      ${ticks.map((t) => `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"/><text x="${L - 8}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join('')}
+      ${months.join('')}
+      <path d="${between}" class="a-wet" clip-path="url(#cp-above)"/>
+      <path d="${between}" class="a-dry" clip-path="url(#cp-below)"/>
+      <path d="M${normPts.join('L')}" class="l-norm"/>
+      <path d="M${rainPts.join('L')}" class="l-rain"/>
+      <text class="lab" x="${x(s.length - 1) + 8}" y="${y(last.cumRain) + 4}" fill="var(--rain)">${last.cumRain.toFixed(0)} mm</text>
+      <text class="lab" x="${x(s.length - 1) + 8}" y="${y(last.cumNormal) + (Math.abs(y(last.cumRain) - y(last.cumNormal)) < 16 ? (diff > 0 ? 18 : -10) : 4)}" fill="var(--sun)">${last.cumNormal.toFixed(0)}</text>
+      <text x="${L}" y="${T - 4}">mm</text>
+      <line class="cross" y1="${T}" y2="${H - B}"/>
+      <circle class="dot d1" r="5" fill="var(--rain)"/><circle class="dot d2" r="5" fill="var(--sun)"/>
+      <rect class="hit" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"/>
+    </svg>`;
+  }
+
+  function bindCumulative(d: RegionDetail) {
+    const svg = body.querySelector<SVGSVGElement>('[data-cum]');
+    if (!svg) return;
+    const s = d.status.series;
+    const W = 760, L = 46, R = 70, T = 16, H = 250, B = 30;
+    const max = Math.max(...s.map((p) => Math.max(p.cumRain, p.cumNormal)), 10) * 1.08;
+    const x = (i: number) => L + (i / (s.length - 1)) * (W - L - R);
+    const y = (v: number) => T + (1 - v / max) * (H - T - B);
+    const hit = svg.querySelector<SVGRectElement>('.hit')!;
+    const cross = svg.querySelector<SVGLineElement>('.cross')!;
+    const d1 = svg.querySelector<SVGCircleElement>('.d1')!;
+    const d2 = svg.querySelector<SVGCircleElement>('.d2')!;
+    hit.addEventListener('pointermove', (e) => {
+      const r = svg.getBoundingClientRect();
+      const px = ((e.clientX - r.left) / r.width) * W;
+      const i = Math.max(0, Math.min(s.length - 1, Math.round(((px - L) / (W - L - R)) * (s.length - 1))));
+      const p = s[i];
+      cross.setAttribute('x1', String(x(i)));
+      cross.setAttribute('x2', String(x(i)));
+      cross.style.opacity = '.45';
+      d1.setAttribute('cx', String(x(i))); d1.setAttribute('cy', String(y(p.cumRain))); d1.style.opacity = '1';
+      d2.setAttribute('cx', String(x(i))); d2.setAttribute('cy', String(y(p.cumNormal))); d2.style.opacity = '1';
+      const pc = p.cumNormal > 0 ? (p.cumRain / p.cumNormal) * 100 : null;
+      showTip(`<b>${niceDate(p.date)}</b><div class="t-row"><span>Rain that day</span><span>${p.rain.toFixed(1)} mm</span></div><div class="t-row"><span>Total so far</span><span>${p.cumRain.toFixed(0)} mm</span></div><div class="t-row"><span>Normal total</span><span>${p.cumNormal.toFixed(0)} mm</span></div><div class="t-row"><span>Share of normal</span><span>${pc === null ? '—' : pc.toFixed(0) + '%'}</span></div>`, e.clientX, e.clientY);
+    });
+    hit.addEventListener('pointerleave', () => { cross.style.opacity = '0'; d1.style.opacity = '0'; d2.style.opacity = '0'; hideTip(); });
+  }
+
+  function dailyBars(d: RegionDetail) {
+    const s = d.status.series;
+    if (!s?.length) return '';
+    const W = 760, H = 110, L = 46, R = 70, T = 10, B = 18;
+    const max = Math.max(...s.map((p) => Math.max(p.rain, p.normalDaily)), 2) * 1.1;
+    const bw = (W - L - R) / s.length;
+    const y = (v: number) => T + (1 - v / max) * (H - T - B);
+    const norm = s.map((p, i) => `${(L + i * bw + bw / 2).toFixed(1)},${y(p.normalDaily).toFixed(1)}`).join('L');
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily rain, last 90 days">
+      <line class="gl" x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}"/>
+      <text x="${L - 8}" y="${y(max / 1.1) + 4}" text-anchor="end">${(max / 1.1).toFixed(0)}</text><text x="${L - 8}" y="${y(0) + 4}" text-anchor="end">0</text>
+      ${s.map((p, i) => {
+        const h = Math.max(0, y(0) - y(p.rain));
+        return `<rect x="${(L + i * bw + 1).toFixed(1)}" y="${(y(0) - h).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${Math.max(h, p.rain > 0 ? 1 : 0).toFixed(1)}" rx="2" fill="${p.rain >= 1 ? 'var(--rain)' : 'var(--dry-1)'}" data-tip="<b>${niceDate(p.date)}</b><div class='t-row'><span>Rain</span><span>${p.rain.toFixed(1)} mm</span></div><div class='t-row'><span>Normal</span><span>${p.normalDaily.toFixed(1)} mm</span></div>"/>`;
+      }).join('')}
+      <path d="M${norm}" class="l-norm" style="stroke-width:1.5"/>
+      <text x="${W - R + 8}" y="${y(0)}">daily mm</text>
+    </svg>`;
+  }
+
+  function next16Chart(d: RegionDetail) {
+    const n = d.next16;
+    if (!n) return '<p class="card-sub">Forecast unavailable right now.</p>';
+    const W = 520, H = 200, L = 34, R = 10, T = 12, B = 34;
+    const max = Math.max(...n.days.map((x) => Math.max(x.rain ?? 0, x.et0 ?? 0)), 3) * 1.15;
+    const bw = (W - L - R) / n.days.length;
+    const y = (v: number) => T + (1 - v / max) * (H - T - B);
+    const et = n.days.map((x, i) => `${(L + i * bw + bw / 2).toFixed(1)},${y(x.et0 ?? 0).toFixed(1)}`).join('L');
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="16-day rain forecast">
+      ${[0, 0.5, 1].map((k) => `<line class="gl" x1="${L}" x2="${W - R}" y1="${y((max / 1.15) * k)}" y2="${y((max / 1.15) * k)}"/><text x="${L - 6}" y="${y((max / 1.15) * k) + 4}" text-anchor="end">${((max / 1.15) * k).toFixed(0)}</text>`).join('')}
+      ${n.days.map((x, i) => {
+        const h = y(0) - y(x.rain ?? 0);
+        const dt = new Date(x.date + 'T00:00');
+        return `<g data-tip="<b>${niceDate(x.date)}</b><div class='t-row'><span>Rain</span><span>${(x.rain ?? 0).toFixed(1)} mm</span></div><div class='t-row'><span>Chance of rain</span><span>${x.chance ?? '—'}%</span></div><div class='t-row'><span>Evaporation demand</span><span>${(x.et0 ?? 0).toFixed(1)} mm</span></div><div class='t-row'><span>Max temp</span><span>${x.tmax ?? '—'} °C</span></div>">
+          <rect x="${L + i * bw}" y="${T}" width="${bw}" height="${H - T - B}" fill="transparent"/>
+          <rect x="${(L + i * bw + 3).toFixed(1)}" y="${(y(0) - h).toFixed(1)}" width="${(bw - 6).toFixed(1)}" height="${Math.max(h, 0).toFixed(1)}" rx="4" fill="url(#g-rain)" opacity="${0.45 + (x.chance ?? 50) / 200}"/>
+          ${i % 2 === 0 ? `<text x="${L + i * bw + bw / 2}" y="${H - 18}" text-anchor="middle">${dt.getDate()}</text>` : ''}
+          ${i % 4 === 0 ? `<text x="${L + i * bw + bw / 2}" y="${H - 4}" text-anchor="middle" style="fill:var(--muted)">${MONTHS[dt.getMonth()]}</text>` : ''}
+        </g>`;
+      }).join('')}
+      <path d="M${et}" fill="none" stroke="var(--dry-1)" stroke-width="2" stroke-dasharray="2 4" stroke-linecap="round"/>
+    </svg>
+    <div class="legend-row"><span><i style="background:var(--rain);height:10px;width:10px;border-radius:3px"></i>Forecast rain (fainter = less likely)</span><span><i style="background:repeating-linear-gradient(90deg,var(--dry-1) 0 2px,transparent 2px 6px)"></i>Evaporation demand</span></div>`;
+  }
+
+  function outlookCards(d: RegionDetail) {
+    const months = d.outlook?.months ?? [];
+    if (!months.length) return `<p class="card-sub">${esc(d.outlook?.error ?? 'Forecast unavailable.')}</p>`;
+    return `<div class="outlook-cards">${months.map((m) => {
+      const p = m.probabilities;
+      const leanText = m.drySeason ? 'Dry season: rain is usually scarce, so the model stays at climatology.' : m.lean === 'dry' ? `Leaning dry: ${(p.below * 100).toFixed(0)}% chance of below-normal rain.` : m.lean === 'wet' ? `Leaning wet: ${(p.above * 100).toFixed(0)}% chance of above-normal rain.` : 'No strong lean: close to the usual odds.';
+      const color = m.lean === 'dry' ? 'var(--dry-0)' : m.lean === 'wet' ? 'var(--wet-0)' : 'var(--muted)';
+      const maxEff = Math.max(0.15, ...m.drivers.map((x) => Math.abs(x.effect)));
+      return `<div class="ocard ${m.drySeason ? 'dryseason' : ''}" data-reveal>
+        <h4>${MONTHS_LONG[Number(m.month.slice(5, 7)) - 1]}<small>${m.lead === 1 ? 'NEXT' : `+${m.lead} MONTHS`}</small></h4>
+        <div class="terciles" data-tip="<b>Chance of rain being…</b><div class='t-row'><span>Below normal</span><span>${(p.below * 100).toFixed(0)}%</span></div><div class='t-row'><span>Near normal</span><span>${(p.near * 100).toFixed(0)}%</span></div><div class='t-row'><span>Above normal</span><span>${(p.above * 100).toFixed(0)}%</span></div>">
+          <span class="tb" style="flex-grow:${p.below}">${(p.below * 100).toFixed(0)}%</span><span class="tn" style="flex-grow:${p.near}">${(p.near * 100).toFixed(0)}%</span><span class="ta" style="flex-grow:${p.above}">${(p.above * 100).toFixed(0)}%</span>
+        </div>
+        <div class="ter-legend"><span>drier</span><span>normal</span><span>wetter</span></div>
+        <div class="lean" style="color:${color}">${leanText}</div>
+        <div class="card-sub">Most likely about <b style="color:var(--ink)">${m.expectedMm.toFixed(0)} mm</b> (normal ${m.normalMm.toFixed(0)} mm, likely range ${m.rangeMm[0].toFixed(0)}–${m.rangeMm[1].toFixed(0)} mm)</div>
+        ${m.drivers.length ? `<div class="drivers-mini"><span class="label">What pushes it</span>${m.drivers.map((x) => {
+          const w = (Math.abs(x.effect) / maxEff) * 50;
+          return `<div class="drv" data-tip="<b>${esc(x.feature)}</b><br>${x.effect > 0 ? 'Pushes toward wetter' : 'Pushes toward drier'} (${signed(x.effect, 2)} σ)"><span>${esc(x.feature)}</span><span class="dtrack"><span style="${x.effect < 0 ? `right:50%;width:${w}%;background:var(--dry-2)` : `left:50%;width:${w}%;background:var(--wet-2)`}"></span></span></div>`;
+        }).join('')}</div>` : ''}
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  function stripes(d: RegionDetail) {
+    const byYear = new Map<string, { month: string; rain: number; normal: number; z: number }[]>();
+    d.history.monthly.forEach((m) => {
+      const y = m.month.slice(0, 4);
+      if (!byYear.has(y)) byYear.set(y, []);
+      byYear.get(y)!.push(m);
+    });
+    const yearPct = new Map(d.history.years.map((y) => [String(y.year), y.pct]));
+    return `<div class="stripe-head"><span></span>${MONTHS.map((m) => `<span>${m[0]}</span>`).join('')}<span>year</span></div>
+      <div class="stripes" data-stripes>${[...byYear.entries()].map(([y, ms]) => `<div class="stripe-row"><span class="yr">${y}</span>${ms.map((m, i) => `<span class="cell" style="background:${zColor(m.z)};transition-delay:${(Number(y) - 2015) * 0.05 + i * 0.015}s" data-tip="<b>${MONTHS_LONG[Number(m.month.slice(5)) - 1]} ${y}</b><div class='t-row'><span>Rain</span><span>${m.rain.toFixed(0)} mm</span></div><div class='t-row'><span>Normal</span><span>${m.normal.toFixed(0)} mm</span></div><div class='t-row'><span>Anomaly</span><span>${signed(m.z, 1)} σ</span></div>"></span>`).join('')}<span class="ypct" style="color:${pctColor(yearPct.get(y) ?? 100)}">${(yearPct.get(y) ?? 0).toFixed(0)}%</span></div>`).join('')}</div>
+      <div class="legend-row"><span style="gap:3px">${[...DRY].reverse().map((c) => `<i style="background:${c};width:14px;height:10px;border-radius:2px"></i>`).join('')}<i style="background:${NEUTRAL};width:14px;height:10px;border-radius:2px"></i>${WET.map((c) => `<i style="background:${c};width:14px;height:10px;border-radius:2px"></i>`).join('')}</span><span>drier ← month vs its 2015–2024 normal → wetter</span></div>`;
+  }
+
+  function render(d: RegionDetail) {
+    const st = d.status;
+    const r = d.region;
+    const w = st.windows;
+    const c = statusColor(st.status, w?.d60.pct ?? null);
+    const conf = { high: 3, medium: 2, low: 1 }[d.why.confidence];
+    const nc = d.nowcast;
+    const ncMax = nc ? Math.max(nc.projectedMm, nc.normalMm, 1) * 1.1 : 1;
+    const news = d.news;
+
+    body.innerHTML = `
+      <div class="dd-head">
+        <div>
+          <span class="label">${esc(r.group === 'north' ? 'Northern & western rain regime' : 'Southern & eastern rain regime')}</span>
+          <h3 class="dd-name">${esc(r.name)}</h3>
+          <div class="dd-meta"><span class="badge" style="color:${c}"><span class="dot"></span>${esc(st.label)}</span><span>${esc(r.livelihood)}</span></div>
+        </div>
+        <div class="sentinel" data-reveal="scale">
+          <svg class="wild-icon" viewBox="0 0 64 40" aria-hidden="true"><use href="#w-${SENTINEL_ICON[r.id] ?? 'tree'}"/></svg>
+          <div><span class="label">Wild sentinel</span><b>${esc(r.sentinel.name)}</b><p>${esc(r.sentinel.note)}</p></div>
+        </div>
+      </div>
+
+      <div class="dd-grid">
+        <article class="card why-card span-7" data-reveal>
+          <span class="label">${icon('search')} Why is this happening?</span>
+          <p class="why-headline">${esc(d.why.headline)}</p>
+          <div class="confidence"><span class="meter">${[1, 2, 3].map((k) => `<i class="${k <= conf ? 'on' : ''}"></i>`).join('')}</span>${d.why.confidence} confidence in the explanation</div>
+          <div class="factors">${d.why.factors.map((f) => {
+            const v = VERDICT[f.verdict] ?? VERDICT.context;
+            return `<div class="factor" style="--vc:${v.color}"><span class="f-ico">${icon(FACTOR_ICON[f.key] ?? 'info')}</span><div><div class="f-top"><h4>${esc(f.title)}</h4><span class="tag">${v.tag}</span></div><p>${esc(f.detail)}</p><span class="src">${esc(f.source ?? '')}</span></div></div>`;
+          }).join('')}</div>
+        </article>
+
+        <div class="span-5" style="display:grid;gap:18px;align-content:start">
+          <article class="card" data-reveal style="--d:.08s">
+            <span class="label">${icon('drop')} Rain vs normal</span>
+            <div class="win-tiles">${(['d30', 'd60', 'd90'] as const).map((k) => `<div class="win" data-tip="<b>Last ${k.slice(1)} days</b><div class='t-row'><span>Rain</span><span>${w[k].rain.toFixed(0)} mm</span></div><div class='t-row'><span>Normal</span><span>${w[k].normal.toFixed(0)} mm</span></div>"><span>${k.slice(1)} days</span><b style="color:${pctColor(w[k].pct)}">${w[k].pct === null ? '—' : w[k].pct.toFixed(0) + '%'}</b><span>${w[k].rain.toFixed(0)} of ${w[k].normal.toFixed(0)} mm</span></div>`).join('')}</div>
+            <div class="mini-tiles">
+              <div class="mini">${icon('sun')}<div><b>${st.drySpellDays} days</b><span>current dry spell · longest ${st.longestDrySpell90} in 90 days</span></div></div>
+              <div class="mini">${icon('thermo')}<div><b>${signed(st.heat.anomaly)} °C</b><span>vs normal, last 30 days (${st.heat.t30 ?? '—'} °C avg)</span></div></div>
+              <div class="mini">${icon('soil')}<div><b>${st.soil.wetness ?? '—'}</b><span>topsoil wetness, normal ${st.soil.normal ?? '—'}</span></div></div>
+              <div class="mini">${icon('calendar')}<div><b>${st.season.inSeason ? 'Rainy season' : 'Off season'}</b><span>${r.seasons.map((s) => `${esc(s.name)} ${MONTHS[s.months[0] - 1]}–${MONTHS[s.months[s.months.length - 1] - 1]}`).join(' · ')}</span></div></div>
+            </div>
+          </article>
+          <article class="card" data-reveal style="--d:.16s">
+            <span class="label">${icon('calendar')} ${nc ? esc(nc.monthName) : 'This month'} so far + forecast</span>
+            ${nc ? `<div style="display:flex;align-items:baseline;gap:12px;margin-top:10px"><span class="nowcast-big" style="color:${pctColor(nc.pctOfNormal)}">${nc.pctOfNormal?.toFixed(0) ?? '—'}%</span><span class="card-sub">projected share of a normal ${esc(nc.monthName)}</span></div>
+              <div class="nowcast-bar" data-tip="<b>${esc(nc.monthName)} projection</b><div class='t-row'><span>Fallen so far</span><span>${nc.observedMm.toFixed(0)} mm</span></div><div class='t-row'><span>Forecast, ${nc.forecastDays} days</span><span>${nc.forecastMm.toFixed(0)} mm</span></div><div class='t-row'><span>Typical rest of month</span><span>${nc.climatologyMm.toFixed(0)} mm</span></div><div class='t-row'><span>Normal month</span><span>${nc.normalMm.toFixed(0)} mm</span></div>">
+                <span class="obs" data-w="${(nc.observedMm / ncMax) * 100}"></span><span class="fc" data-w="${(nc.forecastMm / ncMax) * 100}"></span><span class="cl" data-w="${(nc.climatologyMm / ncMax) * 100}"></span>
+                <i class="nowcast-normal" style="left:${(nc.normalMm / ncMax) * 100}%"></i>
+              </div>
+              <div class="legend-row"><span><i style="background:var(--rain);height:10px;width:10px;border-radius:3px"></i>Fallen to ${niceDate(nc.observedThrough)}</span><span><i style="background:var(--wet-2);height:10px;width:10px;border-radius:3px"></i>16-day forecast</span><span><i style="background:var(--neutral);height:10px;width:10px;border-radius:3px"></i>Typical</span><span><i style="background:var(--sun);height:10px;width:3px"></i>Normal</span></div>` : '<p class="card-sub">Not available.</p>'}
+          </article>
+        </div>
+
+        <article class="card span-12" data-reveal>
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:end">
+            <div><span class="label">${icon('chart')} Rain so far</span><h3 class="card-title" style="margin-top:6px">Last 90 days, adding up</h3></div>
+            <p class="card-sub">The gap between the lines is the rain ${esc(r.name)} is missing (orange) or has extra (blue). Data to ${niceDate(st.lastObserved)}.</p>
+          </div>
+          ${cumulativeChart(d)}
+          ${dailyBars(d)}
+          <div class="legend-row"><span><i style="background:var(--rain)"></i>Rain that fell</span><span><i class="dash"></i>Normal</span><span><i style="background:var(--dry-1);height:10px;width:10px;border-radius:3px"></i>Day under 1 mm</span><span>Source: NASA POWER daily, averaged over ${r.samplePoints.length} point${r.samplePoints.length > 1 ? 's' : ''}</span></div>
+        </article>
+
+        <article class="card span-7" data-reveal>
+          <span class="label">${icon('spark')} Zinab AI outlook</span>
+          <h3 class="card-title" style="margin:6px 0 4px">The next three months</h3>
+          <p class="card-sub" style="margin-bottom:16px">Probabilities from our machine-learning model trained on 45 years of NASA rainfall and ocean signals. Issued from ${d.outlook?.issuedFrom ?? '—'} data. <a href="#model">How good is it?</a></p>
+          ${outlookCards(d)}
+        </article>
+
+        <article class="card span-5" data-reveal style="--d:.08s">
+          <span class="label">${icon('cloud')} Next 16 days</span>
+          <h3 class="card-title" style="margin:6px 0 2px">${d.next16 ? `${d.next16.totalRain.toFixed(0)} mm of rain forecast` : 'Weather outlook'}</h3>
+          <p class="card-sub" style="margin-bottom:10px">${d.next16 ? `${d.next16.wetDays} wet days. Water balance ${signed(d.next16.waterBalance, 0)} mm after evaporation. Open-Meteo blend of global models.` : ''}</p>
+          ${next16Chart(d)}
+        </article>
+
+        <article class="card span-12" data-reveal>
+          <span class="label">${icon('sprout')} Field kit</span>
+          <h3 class="card-title" style="margin:6px 0 16px">What this means on the ground</h3>
+          <div class="kit">${d.fieldKit.map((k) => `<div class="kit-card"><div class="kc-top">${icon(KIT_ICON[k.icon] ?? 'leaf')}${esc(k.audience)}</div><h4>${esc(k.title)}</h4><p>${esc(k.text)}</p></div>`).join('')}</div>
+          <p class="card-sub" style="margin-top:14px">General guidance from the data, not an official advisory. For decisions, check the Ethiopian Meteorology Institute and FEWS NET.</p>
+        </article>
+
+        <article class="card span-6" data-reveal>
+          <span class="label">${icon('news')} In the news</span>
+          <h3 class="card-title" style="margin:6px 0 2px">What people are reporting</h3>
+          <p class="card-sub">${news ? `Last four months via ${esc(news.provider)}. Causes are tagged automatically.` : 'News feed unavailable right now.'}</p>
+          ${news?.signals.length ? `<div class="signals">${news.signals.slice(0, 6).map((s) => `<span class="signal">${esc(s.cause)} <b>${s.mentions}</b></span>`).join('')}</div>` : ''}
+          <div class="news-list">${(news?.articles ?? []).slice(0, 7).map((a) => `<a class="news-item" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer"><b>${esc(a.title)}</b><span class="nmeta">${esc(a.source ?? '')} · ${esc(a.date ?? '')}${a.causes.map((c) => `<span class="ctag">${esc(c)}</span>`).join('')}</span></a>`).join('') || '<p class="card-sub">No recent headlines found.</p>'}</div>
+        </article>
+
+        <article class="card span-6" data-reveal style="--d:.08s">
+          <span class="label">${icon('calendar')} Ten years of rain</span>
+          <h3 class="card-title" style="margin:6px 0 2px">Rain stripes, 2015 to 2024</h3>
+          <p class="card-sub">Each square is one month of CHIRPS satellite rainfall for ${esc(r.name)}, compared with that month's 10-year normal. The right column is the whole year as a share of normal.</p>
+          ${stripes(d)}
+        </article>
+      </div>`;
+
+    body.classList.remove('fade');
+    void body.offsetWidth;
+    body.classList.add('fade');
+    bindCumulative(d);
+    reveal(body);
+    requestAnimationFrame(() => body.querySelectorAll<HTMLElement>('.nowcast-bar [data-w]').forEach((s) => (s.style.width = `${s.dataset.w}%`)));
+    const stripeEl = body.querySelector('[data-stripes]');
+    if (stripeEl) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { stripeEl.classList.add('is-in'); o.disconnect(); } }, { threshold: 0.2 }).observe(stripeEl);
+  }
+
+  const MESSAGES = ['Asking NASA POWER for the last 150 days…', 'Reading the Pacific and Indian Oceans…', 'Running the forecast model…', 'Scanning the news for clues…', 'Almost there…'];
+
+  async function load(id: string) {
+    const my = ++token;
+    select.value = id;
+    chips.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.region === id)));
+    chips.querySelector<HTMLElement>(`[data-region="${id}"]`)?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    const name = regions.find((r) => r.id === id)?.name ?? id;
+    body.innerHTML = `<div class="deep-loading"><span class="drip-loader"><i></i><i></i><i></i></span><span data-load-msg>Gathering clues for ${esc(name)}…</span></div>`;
+    let k = 0;
+    const timer = setInterval(() => {
+      const el = body.querySelector('[data-load-msg]');
+      if (el) el.textContent = MESSAGES[Math.min(k++, MESSAGES.length - 1)];
+    }, 1800);
+    try {
+      const d = await bridge.region(id);
+      if (my !== token) return;
+      render(d);
+    } catch (err) {
+      if (my !== token) return;
+      body.innerHTML = `<div class="error-box">${icon('info')}<div><b>Could not load ${esc(name)}.</b> ${esc((err as Error).message)}</div></div>`;
+    } finally {
+      clearInterval(timer);
+    }
+  }
+
+  Promise.all([bridge.regions(), bridge.pulse().catch(() => null)]).then(([rp, p]) => {
+    regions = rp.regions;
+    const preferred = p?.ranking[0]?.id ?? 'somali';
+    const start = store.boot(preferred);
+    setupPicker(p);
+    store.select(start, 'boot');
+  }).catch((err) => {
+    body.innerHTML = `<div class="error-box">${icon('info')}<div><b>Live data is offline.</b> ${esc(err.message)}</div></div>`;
+  });
+
+  store.subscribe((id) => {
+    if (regions.length) load(id);
+  });
+</script>

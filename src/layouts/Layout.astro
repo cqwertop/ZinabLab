@@ -1,20 +1,44 @@
 ---
 import '../styles/global.css';
-const { title = 'Zinab Lab | Ethiopia Climate Explorer', description = 'Explore NASA POWER precipitation data and seasonal climate patterns across Ethiopia with Zinab Lab.' } = Astro.props;
+import Icons from '../components/Icons.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Zinab Lab · Where did the rain go?',
+  description = 'Live rain tracking across Ethiopia: where rain is failing, why, and what comes next. NASA POWER, CHIRPS, Sentinel-1 radar and a machine-learning forecast. NASA Space Apps Challenge, Dancing with the SARs.',
+} = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#0b1417" />
+    <meta name="theme-color" content="#0c0a1c" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Ethiopic:wght@700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://gibs.earthdata.nasa.gov" crossorigin />
+    <link rel="preconnect" href="https://basemaps.cartocdn.com" crossorigin />
   </head>
   <body>
+    <Icons />
+    <a class="skip" href="#pulse">Skip to the live data</a>
     <slot />
+    <style is:global>
+      .skip { position: fixed; left: 16px; top: -60px; z-index: 10001; background: var(--sun); color: var(--night); padding: 10px 16px; border-radius: 10px; font-weight: 700; text-decoration: none; transition: top .2s; }
+      .skip:focus { top: 16px; }
+    </style>
   </body>
 </html>
